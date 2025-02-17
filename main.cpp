@@ -62,12 +62,12 @@ int main(int argc, char const *argv[])
     // img = IMG_LoadTexture(renderer, "assets/mouse.jpeg");
 	SDL_QueryTexture(img, NULL, NULL, &w, &h);
     SDL_Rect mouse; 
-    mouse.w = w/10; 
-    mouse.h = h/10; 
+    mouse.w = w/4; 
+    mouse.h = h/4; 
     mouse.x = WIDTH/2-mouse.w/2; 
     mouse.y = HEIGHT/1.2-mouse.h/2; 
     
-    int numPixelsToMovePerFrame = mouse.w/3;
+    int numPixelsToMovePerFrame = mouse.w/10;
 
     SDL_Texture *borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
     SDL_Texture *borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
@@ -131,17 +131,17 @@ int main(int argc, char const *argv[])
         }
 
         // bounds checking and correction
-        if (mouse.x < 25) {
-            mouse.x = 25;
+        if (mouse.x < 0) {
+            mouse.x = 0;
         }
-        else if (mouse.x + mouse.w + 26 >= WIDTH) {
-            mouse.x = WIDTH - mouse.w-25;
+        else if (mouse.x + mouse.w + 1 >= WIDTH) {
+            mouse.x = WIDTH - mouse.w;
         }
-        if (mouse.y < 25) {
-            mouse.y = 25;
+        if (mouse.y < 0) {
+            mouse.y = 0;
         }
-        else if (mouse.y + mouse.h + 26 >= HEIGHT) {
-            mouse.y = HEIGHT - mouse.h-25;
+        else if (mouse.y + mouse.h + 1 >= HEIGHT) {
+            mouse.y = HEIGHT - mouse.h;
         }
 
 

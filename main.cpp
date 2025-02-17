@@ -6,8 +6,8 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    int resW = 1280;
-    int resH = 720;
+    int WIDTH = 1280;
+    int HEIGHT = 720;
     
     bool upArrowDown = false;
     bool leftArrowDown = false;
@@ -34,8 +34,8 @@ int main(int argc, char const *argv[])
         "An SDL2 window", // window title
         SDL_WINDOWPOS_UNDEFINED, // initial x position
         SDL_WINDOWPOS_UNDEFINED, // initial y position
-        resW, // width, in pixels
-        resH, // height, in pixels
+        WIDTH, // width, in pixels
+        HEIGHT, // height, in pixels
         SDL_WINDOW_SHOWN // flags - see below
     );
 
@@ -60,9 +60,19 @@ int main(int argc, char const *argv[])
     img = IMG_LoadTexture(renderer, "assets/mouse.png");
     // img = IMG_LoadTexture(renderer, "assets/mouse.jpeg");
 	SDL_QueryTexture(img, NULL, NULL, &w, &h);
-    SDL_Rect sdlRect; sdlRect.x = resW/4; sdlRect.y = resH/4; sdlRect.w = w/10; sdlRect.h = h/10; 
-    int numPixelsToMovePerFrame = sdlRect.w/3;
+    SDL_Rect mouse; 
+    mouse.w = w/10; 
+    mouse.h = h/10; 
+    mouse.x = WIDTH/2-mouse.w/2; 
+    mouse.y = HEIGHT/1.2-mouse.h/2; 
+    
+    int numPixelsToMovePerFrame = mouse.w/3;
 
+    SDL_Texture *borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
+    SDL_Texture *borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
+    SDL_Texture *borderTextureRight = IMG_LoadTexture(renderer, "assets/border/right.jpg");
+    SDL_Texture *borderTextureBottom = IMG_LoadTexture(renderer, "assets/border/bottom.jpg");
+    
 
 
     //main game/app loop
@@ -77,78 +87,91 @@ int main(int argc, char const *argv[])
             }
             else if (event.type == SDL_KEYDOWN) {
 
-                if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
-                upArrowDown = true;
+                if (event.key.keysym.scancode == SDL_SCANCODE_W) {
+                    upArrowDown = true;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                leftArrowDown = true;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
+                    leftArrowDown = true;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                downArrowDown = true;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+                    downArrowDown = true;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                rightArrowDown = true;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                    rightArrowDown = true;
                 }
             }
             else if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
-                upArrowDown = false;
+                if (event.key.keysym.scancode == SDL_SCANCODE_W) {
+                    upArrowDown = false;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                leftArrowDown = false;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
+                    leftArrowDown = false;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                downArrowDown = false;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+                    downArrowDown = false;
                 }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                rightArrowDown = false;
+                else if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                    rightArrowDown = false;
                 }
             }
         }
         //move rectangle
         if (upArrowDown) {
-            sdlRect.y -= numPixelsToMovePerFrame;
+            mouse.y -= numPixelsToMovePerFrame;
         }
         if (leftArrowDown) {
-            sdlRect.x -= numPixelsToMovePerFrame;
+            mouse.x -= numPixelsToMovePerFrame;
         }
         if (downArrowDown) {
-            sdlRect.y += numPixelsToMovePerFrame;
+            mouse.y += numPixelsToMovePerFrame;
         }
         if (rightArrowDown) {
-            sdlRect.x += numPixelsToMovePerFrame;
+            mouse.x += numPixelsToMovePerFrame;
         }
 
         // bounds checking and correction
-        if (sdlRect.x < 0) {
-            sdlRect.x = 0;
+        if (mouse.x < 25) {
+            mouse.x = 25;
         }
-        else if (sdlRect.x + sdlRect.w - 1 >= resW) {
-            sdlRect.x = resW - sdlRect.w;
+        else if (mouse.x + mouse.w + 26 >= WIDTH) {
+            mouse.x = WIDTH - mouse.w-25;
         }
-        if (sdlRect.y < 0) {
-            sdlRect.y = 0;
+        if (mouse.y < 25) {
+            mouse.y = 25;
         }
-        else if (sdlRect.y + sdlRect.h - 1 >= resH) {
-            sdlRect.y = resH - sdlRect.h;
+        else if (mouse.y + mouse.h + 26 >= HEIGHT) {
+            mouse.y = HEIGHT - mouse.h-25;
         }
 
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
         // SDL_SetRenderDrawColor(renderer, 176, 224, 230, SDL_ALPHA_OPAQUE);
-        // SDL_RenderFillRect(renderer, &sdlRect);
+        // SDL_RenderFillRect(renderer, &mouse);
         // SDL_RenderPresent(renderer);
 
+        // SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); // Red color for the border
+        SDL_Rect topBorder = {0, 0, WIDTH, 25};
+        SDL_Rect bottomBorder = {0, HEIGHT - 25, WIDTH, 25};
+        SDL_Rect leftBorder = {0, 0, 25, HEIGHT};
+        SDL_Rect rightBorder = {WIDTH - 25, 0, 25, HEIGHT};
+        SDL_RenderCopy(renderer, borderTextureTop, NULL, &topBorder);
+        SDL_RenderCopy(renderer, borderTextureBottom, NULL, &bottomBorder);
+        SDL_RenderCopy(renderer, borderTextureLeft, NULL, &leftBorder);
+        SDL_RenderCopy(renderer, borderTextureRight, NULL, &rightBorder);
 
-		SDL_RenderCopy(renderer, img, NULL, &sdlRect);
-		// flip the backbuffer
+
+		SDL_RenderCopy(renderer, img, NULL, &mouse);
+		// flip the backbufferasdaw
 		// this means that everything that we prepared behind the screens is actually shown
 		SDL_RenderPresent(renderer);
         SDL_Delay(16);
         lastDrawTime = SDL_GetTicks64();
 
     }
+
+
+
 
 
     SDL_DestroyWindow(window);

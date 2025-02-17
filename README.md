@@ -10,8 +10,7 @@
 # Game preview
 
 # Config
-- Due to linking issues with macOS, I coded everything in a single file to avoid missing library references between files.
-
+- ***Due to linking issues with macOS, I coded everything in a single file to avoid missing library references between files.
 - config sdl2 for macOS:
 make a file name makefile which include this:
 

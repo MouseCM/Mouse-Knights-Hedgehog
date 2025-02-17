@@ -55,6 +55,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
+    SDL_Texture *backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
     int w, h;
     img = IMG_LoadTexture(renderer, "assets/mouse.png");
@@ -144,8 +145,8 @@ int main(int argc, char const *argv[])
         }
 
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(renderer);
+        SDL_Rect background = {0, 0, 0, 0};
+        SDL_RenderCopy(renderer, backgroundImg, NULL, NULL);
         // SDL_SetRenderDrawColor(renderer, 176, 224, 230, SDL_ALPHA_OPAQUE);
         // SDL_RenderFillRect(renderer, &mouse);
         // SDL_RenderPresent(renderer);

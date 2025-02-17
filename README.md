@@ -1,7 +1,7 @@
 
+Hi, Iam Nguyen Chi Minh, 24020232 
 
-
-config sdl2:
+config sdl2 for macOS:
 
 make a file name makefile and paste this to file:
 

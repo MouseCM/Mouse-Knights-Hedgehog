@@ -1,2 +1,6 @@
 all:
-	g++ -I/Library/Frameworks/SDL2.framework/Headers -F/Library/Frameworks -framework SDL2 -Wl,-rpath,/Library/Frameworks main.cpp -o main
+	g++ -F/Library/Frameworks \
+    -framework SDL2 \
+    -framework SDL2_image \
+    -rpath /Library/Frameworks \
+    main.cpp -o main

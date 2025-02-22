@@ -108,6 +108,23 @@ int main(int argc, char const *argv[])
 
 
 
+    srand(1);
+    int dinoW, dinoH;
+    SDL_Texture *dinoImg = NULL;
+    dinoImg = IMG_LoadTexture(renderer, "assets/dino.png");
+    SDL_QueryTexture(dinoImg, NULL, NULL, &dinoW, &dinoH);
+    SDL_Rect dino;
+    dino.x = rand()%100 + 200;
+    dino.y = rand()%100 + 200;
+    dino.w = dinoW*3;
+    dino.h = dinoH*3;
+    // int bulletSpeed = 20;
+
+
+
+
+
+dw
     // border
     SDL_Texture *borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
     SDL_Texture *borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
@@ -262,13 +279,13 @@ int main(int argc, char const *argv[])
 
 
         mouseHPRect.w = mouseHP/100 * mouseW*1.5;
-        // srand(1);
-        mouseHP = 100;
         SDL_Rect temp = {mouse.x, mouse.y-25, mouseW*1.5, 10};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &temp);
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &mouseHPRect);
+
+        SDL_RenderCopy(renderer, dinoImg, NULL, &dino);
 
         if(isFiring && numBullet >= 1){
             // bullet hitbox

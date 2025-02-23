@@ -77,20 +77,25 @@ int main(int argc, char const *argv[])
 
     SDL_Texture *backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
+
+
+
+    Mouse mouse;
+    
     // int mouseW, mouseH;
     img = IMG_LoadTexture(renderer, "assets/mouse.png");
     // // img = IMG_LoadTexture(renderer, "assets/mouse.jpeg");
-	SDL_QueryTexture(img, NULL, NULL, &mouseW, &mouseH);
+	SDL_QueryTexture(img, NULL, NULL, &mouse.mouseW, &mouse.mouseH);
     // int mouseHP = 100;
     // SDL_Rect mouseHPRect;
     // mouseHPRect.w = mouseW*1.5;
     // mouseHPRect.h = 10;
-    SDL_Rect mouse; 
-    mouse.w = mouseW*1.5; 
-    mouse.h = mouseH*1.5; 
-    mouse.x = SCREEN_WIDTH/2-mouse.w/2; 
-    mouse.y = SCREEN_HEIGHT/1.2-mouse.h/2; 
-    int mouseSpeed = 10;
+
+
+    mouse.mouse.w = mouse.mouseW*1.5; 
+    mouse.mouse.h = mouse.mouseH*1.5; 
+    mouse.mouse.x = SCREEN_WIDTH/2-mouse.mouse.w/2; 
+    mouse.mouse.y = SCREEN_HEIGHT/1.2-mouse.mouse.h/2; 
 
 
 
@@ -185,10 +190,10 @@ int main(int argc, char const *argv[])
                     
                     if (numBullet == 0) {
                         SDL_GetMouseState(&aimX, &aimY);
-                        bullet.x = mouse.x+mouse.w/2;    
-                        bullet.y = mouse.y+mouse.h/2;
-                        deltaX = aimX-mouse.x;
-                        deltaY = aimY-mouse.y;
+                        bullet.x = mouse.mouse.x+mouse.mouse.w/2;    
+                        bullet.y = mouse.mouse.y+mouse.mouse.h/2;
+                        deltaX = aimX-mouse.mouse.x;
+                        deltaY = aimY-mouse.mouse.y;
                         float angle = atan2(deltaY, deltaX);
 
                         deltaX = cos(angle) * bulletSpeed;
@@ -206,35 +211,35 @@ int main(int argc, char const *argv[])
 
         //move rectangle
         if (wDown) {
-            mouse.y -= mouseSpeed;
+            mouse.mouse.y -= mouse.mouseSpeed;
         }
         if (aDown) {
-            mouse.x -= mouseSpeed;
+            mouse.mouse.x -= mouse.mouseSpeed;
         }
         if (sDown) {
-            mouse.y += mouseSpeed;
+            mouse.mouse.y += mouse.mouseSpeed;
         }
         if (dDown) {
-            mouse.x += mouseSpeed;
+            mouse.mouse.x += mouse.mouseSpeed;
         }
 
         // mouse border collision
-        if (mouse.x < 25) {
-            mouse.x = 26;
+        if (mouse.mouse.x < 25) {
+            mouse.mouse.x = 26;
         }
-        else if (mouse.x + mouse.w + 26 >= SCREEN_WIDTH) {
-            mouse.x = SCREEN_WIDTH - mouse.w -25;
+        else if (mouse.mouse.x + mouse.mouse.w + 26 >= SCREEN_WIDTH) {
+            mouse.mouse.x = SCREEN_WIDTH - mouse.mouse.w -25;
         }
-        if (mouse.y < 25) {
-            mouse.y = 26;
+        if (mouse.mouse.y < 25) {
+            mouse.mouse.y = 26;
         }
-        else if (mouse.y + mouse.h + 26 >= SCREEN_HEIGHT) {
-            mouse.y = SCREEN_HEIGHT - mouse.h -25;
+        else if (mouse.mouse.y + mouse.mouse.h + 26 >= SCREEN_HEIGHT) {
+            mouse.mouse.y = SCREEN_HEIGHT - mouse.mouse.h -25;
         }
 
-        mouseHPRect.x = mouse.x;
-        mouseHPRect.y = mouse.y-25;
-        mouseHP = 50;
+        mouse.mouseHPRect.x = mouse.mouse.x;
+        mouse.mouseHPRect.y = mouse.mouse.y-25;
+        mouse.mouseHP = 50;
 
 
 
@@ -279,12 +284,12 @@ int main(int argc, char const *argv[])
         SDL_RenderCopy(renderer, borderTextureRight, NULL, &rightBorder);
 
 
-        mouseHPRect.w = float(mouseHP)/100 * mouseW*1.5;
-        SDL_Rect temp = {mouse.x, mouse.y-25, mouseW*1.5, 10};
+        mouse.mouseHPRect.w = float(mouse.mouseHP)/100 * mouse.mouseW*1.5;
+        SDL_Rect temp = {mouse.mouse.x, mouse.mouse.y-25, mouse.mouseW*1.5, 10};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &temp);
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(renderer, &mouseHPRect);
+        SDL_RenderFillRect(renderer, &mouse.mouseHPRect);
 
 
         SDL_RenderCopy(renderer, dinoImg, NULL, &dino);
@@ -304,7 +309,7 @@ int main(int argc, char const *argv[])
         // SDL_SetRenderDrawColor(renderer, 255, 105, 180, SDL_ALPHA_OPAQUE);
         // SDL_RenderFillRect(renderer, &mouse);
 
-		SDL_RenderCopy(renderer, img, NULL, &mouse);
+		SDL_RenderCopy(renderer, img, NULL, &mouse.mouse);
 		// flip the backbufferasdaw
 		// this means that everything that we prepared behind the screens is actually shown
 		SDL_RenderPresent(renderer);

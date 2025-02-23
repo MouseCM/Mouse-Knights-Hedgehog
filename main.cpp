@@ -1,18 +1,22 @@
 #include <iostream>
 #include <random>
 #include <SDL2/SDL.h>
-#include <SDL2_image/SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <numeric>
 #include <math.h>
+
+
+
+#include "bullet.h"
+#include "constants.h"
+#include "mouse.h"
+
 using namespace std;
 
 
-
-const int WIDTH = 1280;
-const int HEIGHT = 720;
 
 
 int main(int argc, char const *argv[])
@@ -50,8 +54,8 @@ int main(int argc, char const *argv[])
         "An SDL2 window", // window title
         SDL_WINDOWPOS_UNDEFINED, // initial x position
         SDL_WINDOWPOS_UNDEFINED, // initial y position
-        WIDTH, // width, in pixels
-        HEIGHT, // height, in pixels
+        SCREEN_WIDTH, // SCREEN_WIDTH, in pixels
+        SCREEN_HEIGHT, // SCREEN_HEIGHT, in pixels
         SDL_WINDOW_SHOWN // flags - see below
     );
 
@@ -73,31 +77,27 @@ int main(int argc, char const *argv[])
 
     SDL_Texture *backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
-    int mouseW, mouseH;
+    // int mouseW, mouseH;
     img = IMG_LoadTexture(renderer, "assets/mouse.png");
-    // img = IMG_LoadTexture(renderer, "assets/mouse.jpeg");
+    // // img = IMG_LoadTexture(renderer, "assets/mouse.jpeg");
 	SDL_QueryTexture(img, NULL, NULL, &mouseW, &mouseH);
-    int mouseHP = 100;
-    SDL_Rect mouseHPRect;
-    mouseHPRect.w = mouseW*1.5;
-    mouseHPRect.h = 10;
+    // int mouseHP = 100;
+    // SDL_Rect mouseHPRect;
+    // mouseHPRect.w = mouseW*1.5;
+    // mouseHPRect.h = 10;
     SDL_Rect mouse; 
     mouse.w = mouseW*1.5; 
     mouse.h = mouseH*1.5; 
-    mouse.x = WIDTH/2-mouse.w/2; 
-    mouse.y = HEIGHT/1.2-mouse.h/2; 
+    mouse.x = SCREEN_WIDTH/2-mouse.w/2; 
+    mouse.y = SCREEN_HEIGHT/1.2-mouse.h/2; 
     int mouseSpeed = 10;
 
 
 
-    int bulletW, bulletH;
-    SDL_Texture *bulletImg = NULL;
     bulletImg = IMG_LoadTexture(renderer, "assets/bullet.png");
     SDL_QueryTexture(bulletImg, NULL, NULL, &bulletW, &bulletH);
-    SDL_Rect bullet;
-    bullet.w = bulletW/2;
-    bullet.h = bulletH/2;
-    int bulletSpeed = 20;
+    bullet.w = bulletW*1.5;
+    bullet.h = bulletH*1.5;
     
 
     int aimX = 0;
@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
 
 
 
-dw
+
     // border
     SDL_Texture *borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
     SDL_Texture *borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
@@ -222,18 +222,19 @@ dw
         if (mouse.x < 25) {
             mouse.x = 26;
         }
-        else if (mouse.x + mouse.w + 26 >= WIDTH) {
-            mouse.x = WIDTH - mouse.w -25;
+        else if (mouse.x + mouse.w + 26 >= SCREEN_WIDTH) {
+            mouse.x = SCREEN_WIDTH - mouse.w -25;
         }
         if (mouse.y < 25) {
             mouse.y = 26;
         }
-        else if (mouse.y + mouse.h + 26 >= HEIGHT) {
-            mouse.y = HEIGHT - mouse.h -25;
+        else if (mouse.y + mouse.h + 26 >= SCREEN_HEIGHT) {
+            mouse.y = SCREEN_HEIGHT - mouse.h -25;
         }
 
         mouseHPRect.x = mouse.x;
         mouseHPRect.y = mouse.y-25;
+        mouseHP = 50;
 
 
 
@@ -249,7 +250,7 @@ dw
             isFiring = false;
             numBullet = 0;
         }
-        else if (bullet.x + bullet.w >= WIDTH) {
+        else if (bullet.x + bullet.w >= SCREEN_WIDTH) {
             isFiring = false;
             numBullet = 0;
         }
@@ -258,32 +259,33 @@ dw
             isFiring = false;
             numBullet = 0;
         }
-        else if (bullet.y + bullet.h >= HEIGHT) {
+        else if (bullet.y + bullet.h >= SCREEN_HEIGHT) {
             isFiring = false;
             numBullet = 0;
         }
 
 
-        SDL_Rect background = {25, 25, WIDTH-50, HEIGHT-50};
+        SDL_Rect background = {25, 25, SCREEN_WIDTH-50, SCREEN_HEIGHT-50};
         SDL_RenderCopy(renderer, backgroundImg, NULL, &background);
 
 
-        SDL_Rect topBorder = {0, 0, WIDTH, 25};
-        SDL_Rect bottomBorder = {0, HEIGHT - 25, WIDTH, 25};
-        SDL_Rect leftBorder = {0, 0, 25, HEIGHT};
-        SDL_Rect rightBorder = {WIDTH - 25, 0, 25, HEIGHT};
+        SDL_Rect topBorder = {0, 0, SCREEN_WIDTH, 25};
+        SDL_Rect bottomBorder = {0, SCREEN_HEIGHT - 25, SCREEN_WIDTH, 25};
+        SDL_Rect leftBorder = {0, 0, 25, SCREEN_HEIGHT};
+        SDL_Rect rightBorder = {SCREEN_WIDTH - 25, 0, 25, SCREEN_HEIGHT};
         SDL_RenderCopy(renderer, borderTextureTop, NULL, &topBorder);
         SDL_RenderCopy(renderer, borderTextureBottom, NULL, &bottomBorder);
         SDL_RenderCopy(renderer, borderTextureLeft, NULL, &leftBorder);
         SDL_RenderCopy(renderer, borderTextureRight, NULL, &rightBorder);
 
 
-        mouseHPRect.w = mouseHP/100 * mouseW*1.5;
+        mouseHPRect.w = float(mouseHP)/100 * mouseW*1.5;
         SDL_Rect temp = {mouse.x, mouse.y-25, mouseW*1.5, 10};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &temp);
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &mouseHPRect);
+
 
         SDL_RenderCopy(renderer, dinoImg, NULL, &dino);
 

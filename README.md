@@ -28,4 +28,5 @@ make a file name makefile which include this:
 
     https://fb.watch/xOY2rD-J4Y/
     https://gist.github.com/armornick/3434362
+    https://www.youtube.com/watch?v=XOk0aGwZYn8
     claude.ai

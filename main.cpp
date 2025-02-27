@@ -21,8 +21,6 @@
 
 using namespace std;
 
-
-
  
 
 int run() {
@@ -43,6 +41,7 @@ int run() {
     for(int i = 0; i < num; i++){
         Dino temp;
         temp.SetDino(renderer, (i+1)*200);
+        // temp.Fire();
         dino.push_back(temp);
     }
 
@@ -94,6 +93,14 @@ int run() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
 
 
 

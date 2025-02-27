@@ -54,6 +54,13 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
         return;
     }
 
+    dino.dinoBullet.x += 1;
+    dino.dinoBullet.y += 1;
+    if (dino.isFiring && dino.dinoBulletNum >= 1) {
+        SDL_RenderCopy(renderer, dino.dinoBulletImg, NULL, &dino.dinoBullet);
+        // cout << dino.dinoBullet.x << " " << dino.dinoBullet.y << endl;
+    }
+
     dino.dinoHPRect.x = dino.dino.x;
     dino.dinoHPRect.y = dino.dino.y-25;
     dino.dinoHPRect.w = float(dino.dinoHP)/100 * dino.dinoW*2;
@@ -66,3 +73,4 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
 
     SDL_RenderCopy(renderer, dino.dinoImg, NULL, &dino.dino);
 }
+

@@ -13,7 +13,7 @@ public:
     SDL_Texture *borderTextureRight = NULL;
     SDL_Texture *borderTextureBottom = NULL;
 
-    void SetStage() {
+    void SetStage(SDL_Renderer *renderer) {
         backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
         borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");

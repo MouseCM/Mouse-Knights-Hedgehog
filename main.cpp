@@ -1,5 +1,5 @@
 #include <iostream>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <SDL2/SDL_image.h>
 #include <random>
 #include <vector>
@@ -12,7 +12,6 @@
 #include "constants.h"
 #include "event.h"
 #include "player.h"
-#include "globals.h"
 #include "dino.h"
 #include "helper_functions.h"
 #include "stage.h"
@@ -24,8 +23,12 @@ using namespace std;
  
 
 int run() {
+    SDL_Window *window = nullptr;
+    SDL_Renderer *renderer = nullptr;
+
+    Event event;
     srand(1);
-    SetUp();
+    SetUp(window, renderer);
 
     Player player;
     player.Setplayer(renderer);
@@ -34,7 +37,7 @@ int run() {
 
 
     Stage stage;
-    stage.SetStage();
+    stage.SetStage(renderer);
 
     int num = 4;
     vector<Dino> dino;
@@ -45,35 +48,44 @@ int run() {
         dino.push_back(temp);
     }
 
+    
+    
+
     SDL_ShowCursor(SDL_DISABLE);
 
 
     while (event.appIsRunning) {
         event.CheckEvent();
 
-        Fire(player);
+        
 
         player.Move(event);
 
         player.CheckBorderCollision();
 
+        Fire(event, player);
         player.bullet.Move(event);
 
-        player.bullet.CheckBorderCollision();
 
         for(int i = 0; i < num; i++) {
             IsCollision(player, dino[i]);
         }
-        
+
+        player.bullet.CheckBorderCollision();
+        // IsCollision(player, dino);
 
         RenderStage(renderer, stage);
         RenderPlayer(renderer, player);
-        if(player.bullet.isFiring && player.bullet.numBullet >= 1){
+
+        // render bullet
+        if(player.bullet.isFiring) {
             SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
         }
+
         for(int i = 0; i < num; i++) {
             RenderDino(renderer, dino[i]);
         }
+
         
 
         RenderCustomDotCursor(renderer);
@@ -82,7 +94,6 @@ int run() {
 
 		SDL_RenderPresent(renderer);
         SDL_Delay(16);
-        lastDrawTime = SDL_GetTicks64();
     }
 
 

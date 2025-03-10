@@ -2,7 +2,9 @@
 
 
 using namespace std;
-int SetUp() {
+
+
+int SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cout << "SDL could not be initialized: " << SDL_GetError();
     }
@@ -38,34 +40,36 @@ int SetUp() {
     return 0;
 }
 
-void Fire(Player &player) {
+void Fire(Event &event, Player &player) {
     if (event.mouseButtonLeftDown) {
-        if (player.bullet.numBullet == 0) {
-            SDL_GetMouseState(&player.bullet.aimX, &player.bullet.aimY);
-
-            player.bullet.deltaX = (player.bullet.aimX - player.bullet.bullet.w/2) - (player.player.x + player.player.w/2 - player.bullet.bullet.w/2);
-            player.bullet.deltaY = (player.bullet.aimY - player.bullet.bullet.h/2) - (player.player.y + player.player.h/2 - player.bullet.bullet.h/2);
-            player.bullet.angle = atan2(player.bullet.deltaY, player.bullet.deltaX);
-            player.bullet.deltaX = player.player.x + player.player.w/2 - player.bullet.bullet.w/2;
-            player.bullet.deltaY = player.player.y + player.player.h/2 - player.bullet.bullet.h/2;
-        }
-        player.bullet.numBullet++;
-        player.bullet.isFiring = true;
+        player.Fire();
     }
 }
+bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
+    if (rect1.x + rect1.w >= rect2.x && rect1.x <= rect2.x + rect2.w) {
+        if (rect1.y + rect1.h >= rect2.y && rect1.y <= rect2.y + rect2.h) {
+            return true;
+        }
+    }
 
+    return false;
+}
 
 void IsCollision(Player &player, Dino &dino) {
     if (dino.dinoHP <= 0) {
         return;
     }
-    
-    if (player.bullet.isFiring && player.bullet.numBullet >= 1) {
-        if (player.bullet.bullet.x + player.bullet.bullet.w >= dino.dino.x && player.bullet.bullet.x <= dino.dino.x + dino.dino.w &&
-            player.bullet.bullet.y + player.bullet.bullet.h >= dino.dino.y && player.bullet.bullet.y <= dino.dino.y + dino.dino.h) {
-            player.bullet.isFiring = false;
-            player.bullet.numBullet = 0;
-            dino.dinoHP -= 20;
+
+    if (player.bullet.isFiring) {
+        if(Collision(player.bullet.bullet, dino.dino)) {
+            dino.dinoHP -= player.bullet.damage;
+            // player.bullet.isFiring = false;
+        }
+
+        if(Collision(player.player, player.bullet.bullet)) {
+            player.playerHP -= player.bullet.damage;
         }
     }
+
+    
 }

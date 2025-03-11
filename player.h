@@ -119,7 +119,7 @@ public:
 
     void Fire() {   
         
-        cout << SDL_GetTicks64() << ' ' << bullet.reloadTime << endl;
+        // cout << SDL_GetTicks64() << ' ' << bullet.reloadTime << endl;
         if(bullet.isFiring == 0 && SDL_GetTicks64() >= bullet.reloadTime) {
             // cout << '1';
             SDL_GetMouseState(&bullet.aimX, &bullet.aimY);

@@ -3,11 +3,9 @@ void RenderHitbox(SDL_Renderer *renderer, SDL_Rect rect) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void RenderStage(SDL_Renderer *renderer, Stage &stage) {
+void RenderBackground1(SDL_Renderer *renderer, Stage &stage) {
     SDL_RenderCopy(renderer, stage.backgroundImg, NULL, &stage.background);
     // SDL_DestroyTexture(backgroundImg);
-
-
 
     SDL_RenderCopy(renderer, stage.borderTextureTop, NULL, &stage.topBorder);
     SDL_RenderCopy(renderer, stage.borderTextureBottom, NULL, &stage.bottomBorder);
@@ -35,7 +33,7 @@ void RenderCustomDotCursor(SDL_Renderer* renderer) {
 void RenderPlayer(SDL_Renderer *renderer, Player &player) {
     player.playerHPRect.x = player.player.x;
     player.playerHPRect.y = player.player.y-25;
-    player.playerHPRect.w = player.playerW*1.5;
+    player.playerHPRect.w = float(player.playerHP)/100 * player.playerW*1.5;
 
     SDL_Rect temp = {player.player.x, player.player.y-25, player.playerW*15/10, 10};
     SDL_SetRenderDrawColor(renderer, 200, 200, 200, SDL_ALPHA_OPAQUE);
@@ -70,3 +68,60 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     SDL_RenderCopy(renderer, dino.dinoImg, NULL, &dino.dino);
 }
 
+
+
+
+void RenderHome(Event event, SDL_Renderer *renderer, Stage &stage) {
+    // event.CheckEvent();
+
+    SDL_RenderCopy(renderer, stage.homeImg, NULL, NULL);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(16);
+}
+
+
+
+
+void RenderStage1(Event event, SDL_Renderer *renderer, Stage &stage, Player &player, vector<Dino> &dino) {
+
+
+    SDL_ShowCursor(SDL_DISABLE);
+
+    
+
+    player.Move(event);
+
+    player.CheckBorderCollision();
+
+    Fire(event, player);
+    player.bullet.Move(event);
+
+
+    for(int i = 0; i < 4; i++) {
+        IsCollision(player, dino[i]);
+    }
+
+    player.bullet.CheckBorderCollision();
+    // IsCollision(player, dino);
+
+    RenderBackground1(renderer, stage);
+    RenderPlayer(renderer, player);
+
+    // render bullet
+    if(player.bullet.isFiring) {
+        SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
+    }
+
+    for(int i = 0; i < 4; i++) {
+        RenderDino(renderer, dino[i]);
+    }
+
+    
+
+    RenderCustomDotCursor(renderer);
+    
+
+
+    SDL_RenderPresent(renderer);
+    SDL_Delay(16);    
+}

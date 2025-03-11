@@ -1,3 +1,5 @@
+using namespace std;
+
 class Event {
 
 
@@ -14,7 +16,41 @@ public:
     bool rightArrowDown = false;
     bool mouseButtonDown = false;
     bool mouseButtonLeftDown = false;
+    bool playDown = false;
+    int mouseX = 0;
+    int mouseY = 0;
+
     SDL_Event event;
+
+    void checkHome() {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                appIsRunning = false;
+            }
+
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                mouseButtonLeftDown = true;
+                SDL_GetMouseState(&mouseX, &mouseY);
+            }
+            if (event.type == SDL_MOUSEBUTTONUP) {
+                mouseButtonLeftDown = false;
+            }
+
+            // cout << mouseX << ' ' << mouseY << endl;
+            
+            if(mouseX >= 229 && mouseX <= 1046 && mouseY >= 185 && mouseY <= 419) {
+                playDown = true;
+            } 
+            if(mouseX >= 496 && mouseX <= 779 && mouseY >= 468 && mouseY <= 540) {
+                if(mouseButtonLeftDown) {
+                    appIsRunning = false;
+                    // cout << '1';
+                }
+            }
+
+        }
+
+    }
 
     void CheckEvent() {
         while (SDL_PollEvent(&event)) {

@@ -4,7 +4,7 @@
 using namespace std;
 
 
-int SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
+void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cout << "SDL could not be initialized: " << SDL_GetError();
     }
@@ -15,7 +15,7 @@ int SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
 
     // Create an application window with the following settings:
     window = SDL_CreateWindow(
-        "An SDL2 window", // window title
+        "Mouse Knights: Hedgehog", // window title
         SDL_WINDOWPOS_UNDEFINED, // initial x position
         SDL_WINDOWPOS_UNDEFINED, // initial y position
         SCREEN_WIDTH, // SCREEN_WIDTH, in pixels
@@ -26,7 +26,7 @@ int SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     // Check that the window was successfully created
     if (window == NULL) {
         cout << "Window is NULL";
-        return 1;
+        return;
     }
     
     // initialize renderer
@@ -34,10 +34,10 @@ int SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     SDL_RENDERER_PRESENTVSYNC);
     if (renderer == NULL) {
         cout << "Renderer is NULL";
-        return 1;
+        return;
     }
 
-    return 0;
+    cout << "pass";
 }
 
 void Fire(Event &event, Player &player) {
@@ -66,9 +66,9 @@ void IsCollision(Player &player, Dino &dino) {
             // player.bullet.isFiring = false;
         }
 
-        if(Collision(player.player, player.bullet.bullet)) {
-            player.playerHP -= player.bullet.damage;
-        }
+        // if(Collision(player.player, player.bullet.bullet)) {
+        //     player.playerHP -= player.bullet.damage;
+        // }
     }
 
     

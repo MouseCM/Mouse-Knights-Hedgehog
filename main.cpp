@@ -30,14 +30,17 @@ int run() {
     srand(1);
     SetUp(window, renderer);
 
+    Stage stage;
+    int curStage = 0;
+
+    vector<bool> isSet(2);
+
     Player player;
     player.Setplayer(renderer);
     player.bullet.SetPlayerBullet(renderer);
     
 
-
-    Stage stage;
-    stage.SetStage(renderer);
+    stage.SetStage1(renderer);
 
     int num = 4;
     vector<Dino> dino;
@@ -46,55 +49,39 @@ int run() {
         temp.SetDino(renderer, (i+1)*200);
         // temp.Fire();
         dino.push_back(temp);
+    
     }
 
-    
-    
+    SDL_RenderPresent(renderer);
 
-    SDL_ShowCursor(SDL_DISABLE);
+    while(event.appIsRunning) {
+        if(curStage == 0) {
+            event.checkHome();
 
+            if(!isSet[curStage]) {
+                stage.SetHome(renderer);
+                isSet[curStage] = true;
+            }
 
-    while (event.appIsRunning) {
-        event.CheckEvent();
+            if(event.mouseButtonLeftDown && event.playDown) {
+                curStage++;
+                event.mouseButtonLeftDown = false;
+            }
 
-        
+            
 
-        player.Move(event);
+            
 
-        player.CheckBorderCollision();
-
-        Fire(event, player);
-        player.bullet.Move(event);
-
-
-        for(int i = 0; i < num; i++) {
-            IsCollision(player, dino[i]);
+            RenderHome(event, renderer, stage);
         }
-
-        player.bullet.CheckBorderCollision();
-        // IsCollision(player, dino);
-
-        RenderStage(renderer, stage);
-        RenderPlayer(renderer, player);
-
-        // render bullet
-        if(player.bullet.isFiring) {
-            SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
-        }
-
-        for(int i = 0; i < num; i++) {
-            RenderDino(renderer, dino[i]);
+        else if(curStage == 1) {
+            event.CheckEvent();
+            RenderStage1(event, renderer, stage, player, dino);
         }
 
         
-
-        RenderCustomDotCursor(renderer);
-        
-
-
-		SDL_RenderPresent(renderer);
-        SDL_Delay(16);
     }
+    
 
 
 
@@ -115,8 +102,7 @@ int run() {
 
 
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
     run();
     return 0;
 }

@@ -1,5 +1,8 @@
 class Stage {
 public:
+    SDL_Rect home = {0, 0, SCREEN_HEIGHT, SCREEN_WIDTH};
+    SDL_Texture *homeImg = NULL;
+
     SDL_Rect background = {25, 25, SCREEN_WIDTH-50, SCREEN_HEIGHT-50};
     SDL_Texture *backgroundImg = NULL;
 
@@ -13,7 +16,11 @@ public:
     SDL_Texture *borderTextureRight = NULL;
     SDL_Texture *borderTextureBottom = NULL;
 
-    void SetStage(SDL_Renderer *renderer) {
+    void SetHome(SDL_Renderer *renderer) {
+        homeImg = IMG_LoadTexture(renderer, "assets/home.png");
+    }
+
+    void SetStage1(SDL_Renderer *renderer) {
         backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
         borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");

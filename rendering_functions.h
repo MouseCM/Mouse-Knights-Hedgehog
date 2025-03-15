@@ -71,57 +71,123 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
 
 
 
-void RenderHome(Event event, SDL_Renderer *renderer, Stage &stage) {
+void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
     // event.CheckEvent();
+    stage.SetHome(renderer);
+    
+    while(event.appIsRunning) {
+        if(event.curStage != 0) break;
+        event.checkHome();
 
-    SDL_RenderCopy(renderer, stage.homeImg, NULL, NULL);
-    SDL_RenderPresent(renderer);
-    SDL_Delay(16);
+        if(event.mouseButtonLeftDown && event.playDown) {
+            event.mouseButtonLeftDown = false;
+            event.curStage++;
+        }
+
+        SDL_RenderCopy(renderer, stage.homeImg, NULL, NULL);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
 }
 
 
 
-
-void RenderStage1(Event event, SDL_Renderer *renderer, Stage &stage, Player &player, vector<Dino> &dino) {
-
-
-    SDL_ShowCursor(SDL_DISABLE);
-
-    
-
-    player.Move(event);
-
-    player.CheckBorderCollision();
-
-    Fire(event, player);
-    player.bullet.Move(event);
-
-
-    for(int i = 0; i < 4; i++) {
-        IsCollision(player, dino[i]);
+bool checkDinoDead(vector<Dino> dino) {
+    for(int i = 0; i < dino.size(); i++){
+        if(dino[i].dinoHP > 0) return false;
     }
 
-    player.bullet.CheckBorderCollision();
-    // IsCollision(player, dino);
+    return true;
+}
 
-    RenderBackground1(renderer, stage);
-    RenderPlayer(renderer, player);
 
-    // render bullet
-    if(player.bullet.isFiring) {
-        SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
-    }
-
-    for(int i = 0; i < 4; i++) {
-        RenderDino(renderer, dino[i]);
-    }
-
+void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
+    Player player;
+    player.Setplayer(renderer);
+    player.bullet.SetPlayerBullet(renderer);
     
 
-    RenderCustomDotCursor(renderer);
+    stage.SetStage1(renderer);
+
+    int num = 4;
+    vector<Dino> dino;
+    ifstream file("levels/1.txt");
+    int x = 0;
+    int y = 0;
+
+    for(int i = 0; i < num; i++){
+        Dino temp;
+        file >> x >> y;
+        
+        temp.SetDino(renderer, x, y);
+        // temp.Fire();
+        temp.bullet.SetRect(renderer, temp);
+        dino.push_back(temp);
     
+    }
+
+    file.close();
+
+    stage.SetPortal(renderer);
 
 
-    SDL_RenderPresent(renderer);
-    SDL_Delay(16);    
+    while(event.appIsRunning) {
+        event.CheckEvent();
+
+        SDL_ShowCursor(SDL_DISABLE);
+
+        
+
+        player.Move(event);
+
+        player.CheckBorderCollision();
+
+        Fire(event, player);
+        player.bullet.Move(event);
+        
+
+
+        
+
+
+        for(int i = 0; i < 4; i++) {
+            IsCollision(player, dino[i]);
+        }
+
+        
+
+        player.bullet.CheckBorderCollision();
+        
+        // IsCollision(player, dino);
+
+        RenderBackground1(renderer, stage);
+
+        if(checkDinoDead(dino)) {
+            // cout << "viectory";
+            SDL_RenderCopy(renderer, stage.portalIMG, NULL, &stage.portal);
+            if(Collision(player.player, stage.portal)) {
+                event.appIsRunning = false;
+            }
+        }
+        
+        RenderPlayer(renderer, player);
+
+        // render bullet
+        if(player.bullet.isFiring) {
+            SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
+        }
+
+        for(int i = 0; i < 4; i++) {
+            RenderDino(renderer, dino[i]);
+        }
+
+        
+
+        RenderCustomDotCursor(renderer);
+        
+
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);   
+    } 
 }

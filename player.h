@@ -9,7 +9,7 @@ public:
     int playerW = 0;
     int playerH = 0;
     SDL_Rect player = {0, 0, 0, 0}; 
-    int playerSpeed = 6;
+    int playerSpeed = 5;
     int playerHP = 100;
     SDL_Rect playerHPRect = {0, 0, 0, 0};
     SDL_Texture *playerImg = NULL;
@@ -52,11 +52,11 @@ public:
 
     class Bullet {
     public:
-        int bulletW;
-        int bulletH;
+        int rectW;
+        int rectH;
         SDL_Texture *bulletImg = NULL;
-        SDL_Rect bullet = {1, 1, 1, 1};
-        int bulletSpeed = 20;
+        SDL_Rect bullet = {26, 26, 26, 26};
+        int speed = 10;
         int aimX = 0;
         int aimY = 0;
         float deltaX = 0;
@@ -64,58 +64,54 @@ public:
         bool isFiring = false;
         float angle = 0;
         int reloadTime = SDL_GetTicks64();
-        int existTime = SDL_GetTicks64();
+        int existTime = 5000;
         int damage = 10;
-        
 
 
         void SetPlayerBullet(SDL_Renderer *renderer) {
             bulletImg = IMG_LoadTexture(renderer, "assets/bullet.png");
-            SDL_QueryTexture(bulletImg, NULL, NULL, &bulletW, &bulletH);
-            bullet.w = bulletW*1.5;
-            bullet.h = bulletH*1.5;
+            SDL_QueryTexture(bulletImg, NULL, NULL, &rectW, &rectH);
+            bullet.w = rectW * 1.5;
+            bullet.h = rectH * 1.5;
         }
 
         void CheckBorderCollision() {
-            if(bullet.x <= 0){
-                isFiring = false;
-                reloadTime = SDL_GetTicks64() + 3000;
-                bullet.x = 1;
-                bullet.y = 1;
+            if(bullet.x <= 25){
+                deltaX = 26;
+                angle = M_PI - angle;
             }
-            else if (bullet.x + bullet.w >= SCREEN_WIDTH) {
-                isFiring = false;
-                reloadTime = SDL_GetTicks64() + 3000;
-                bullet.x = 1;
-                bullet.y = 1;
+            else if (bullet.x + bullet.w + 25 >= SCREEN_WIDTH) {
+                deltaX = SCREEN_WIDTH-bullet.w-26;
+                angle = M_PI - angle;
+                
             }
-            else if(bullet.y <= 0){
-                isFiring = false;
-                reloadTime = SDL_GetTicks64() + 3000;
-                bullet.x = 1;
-                bullet.y = 1;
+            else if(bullet.y <= 25){
+                deltaY = 26;
+                angle = -angle;
             }
-            else if (bullet.y + bullet.h >= SCREEN_HEIGHT) {
-                isFiring = false;
-                reloadTime = SDL_GetTicks64() + 3000;
-                bullet.x = 1;
-                bullet.y = 1;
+            else if (bullet.y + bullet.h + 25 >= SCREEN_HEIGHT) {
+                deltaY = SCREEN_HEIGHT-bullet.h-26;
+                angle = -angle;
             }
         }
 
         void Move(Event &event) {
             if(isFiring) {
-                bullet.x = deltaX + cos(angle) * bulletSpeed;
-                bullet.y = deltaY + sin(angle) * bulletSpeed;
-                deltaX += cos(angle) * bulletSpeed;
-                deltaY += sin(angle) * bulletSpeed;
+                bullet.x = deltaX;
+                bullet.y = deltaY;
+                deltaX += cos(angle) * speed;
+                deltaY += sin(angle) * speed;
             }
+
+            // cout << rotateX << ' ' << rotateY << endl;
+            // cout << bullet.x << ' ' << bullet.y << endl;
+            // cout << bullet.w << ' ' << bullet.h << endl;
         }
 
     };
 
     Bullet bullet;
-    vector<Bullet> bullets;
+    // vector<Bullet> bullets;
 
     void Fire() {   
         
@@ -128,18 +124,18 @@ public:
             bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
             bullet.deltaX = player.x + player.w/2 - bullet.bullet.w/2;
             bullet.deltaY = player.y + player.h/2 - bullet.bullet.h/2;
-            bullet.existTime = SDL_GetTicks64() + 5000;
+            bullet.existTime = SDL_GetTicks64() + 3000;
             bullet.isFiring = true;
         }
 
-        else {
-            SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
-            bullet.deltaX = (bullet.aimX) - (bullet.bullet.x);
-            bullet.deltaY = (bullet.aimY) - (bullet.bullet.y);
-            bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
-            bullet.deltaX = bullet.bullet.x;
-            bullet.deltaY = bullet.bullet.y;
-        }
+        // else {
+        //     SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
+        //     bullet.deltaX = (bullet.aimX) - (bullet.bullet.x);
+        //     bullet.deltaY = (bullet.aimY) - (bullet.bullet.y);
+        //     bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
+        //     bullet.deltaX = bullet.bullet.x;
+        //     bullet.deltaY = bullet.bullet.y;
+        // }
 
         if(bullet.isFiring && SDL_GetTicks64() >= bullet.existTime) {
             bullet.isFiring = false;

@@ -6,6 +6,9 @@ public:
     SDL_Rect background = {25, 25, SCREEN_WIDTH-50, SCREEN_HEIGHT-50};
     SDL_Texture *backgroundImg = NULL;
 
+    SDL_Rect portal = {SCREEN_WIDTH/2 -20, SCREEN_HEIGHT/2 - 40, 40, 80};
+    SDL_Texture *portalIMG = NULL;
+
     SDL_Rect topBorder = {0, 0, SCREEN_WIDTH, 25};
     SDL_Rect bottomBorder = {0, SCREEN_HEIGHT - 25, SCREEN_WIDTH, 25};
     SDL_Rect leftBorder = {0, 0, 25, SCREEN_HEIGHT};
@@ -18,6 +21,10 @@ public:
 
     void SetHome(SDL_Renderer *renderer) {
         homeImg = IMG_LoadTexture(renderer, "assets/home.png");
+    }
+
+    void SetPortal(SDL_Renderer *renderer) {
+        portalIMG = IMG_LoadTexture(renderer, "assets/portal.png");
     }
 
     void SetStage1(SDL_Renderer *renderer) {

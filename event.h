@@ -17,8 +17,10 @@ public:
     bool mouseButtonDown = false;
     bool mouseButtonLeftDown = false;
     bool playDown = false;
+    bool exitDown = false;
     int mouseX = 0;
     int mouseY = 0;
+    int curStage = 0;
 
     SDL_Event event;
 
@@ -75,6 +77,9 @@ public:
                 }
                 if (event.key.keysym.scancode == SDL_SCANCODE_D) {
                     dDown = true;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                    appIsRunning = false;
                 }
             
             }

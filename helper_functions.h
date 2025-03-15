@@ -37,7 +37,7 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
         return;
     }
 
-    cout << "pass";
+    cout << "Setup successfully";
 }
 
 void Fire(Event &event, Player &player) {

@@ -56,7 +56,7 @@ public:
         int rectH;
         SDL_Texture *bulletImg = NULL;
         SDL_Rect bullet = {26, 26, 26, 26};
-        int speed = 10;
+        int speed = 40;
         int aimX = 0;
         int aimY = 0;
         float deltaX = 0;
@@ -65,7 +65,8 @@ public:
         float angle = 0;
         int reloadTime = SDL_GetTicks64();
         int existTime = 5000;
-        int damage = 10;
+        int damage = 100;
+        bool isLose = false;
 
 
         void SetPlayerBullet(SDL_Renderer *renderer) {
@@ -83,7 +84,6 @@ public:
             else if (bullet.x + bullet.w + 25 >= SCREEN_WIDTH) {
                 deltaX = SCREEN_WIDTH-bullet.w-26;
                 angle = M_PI - angle;
-                
             }
             else if(bullet.y <= 25){
                 deltaY = 26;
@@ -96,6 +96,11 @@ public:
         }
 
         void Move(Event &event) {
+            if(isFiring && SDL_GetTicks64() >= existTime) {
+                isFiring = false;
+                isLose = true;
+            }
+
             if(isFiring) {
                 bullet.x = deltaX;
                 bullet.y = deltaY;
@@ -107,17 +112,13 @@ public:
             // cout << bullet.x << ' ' << bullet.y << endl;
             // cout << bullet.w << ' ' << bullet.h << endl;
         }
-
     };
 
     Bullet bullet;
-    // vector<Bullet> bullets;
 
     void Fire() {   
         
-        // cout << SDL_GetTicks64() << ' ' << bullet.reloadTime << endl;
-        if(bullet.isFiring == 0 && SDL_GetTicks64() >= bullet.reloadTime) {
-            // cout << '1';
+        if(bullet.isFiring == 0 && bullet.isLose == false) {
             SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
             bullet.deltaX = bullet.aimX - (player.x + player.w/2);
             bullet.deltaY = bullet.aimY - (player.y + player.h/2);
@@ -128,19 +129,8 @@ public:
             bullet.isFiring = true;
         }
 
-        // else {
-        //     SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
-        //     bullet.deltaX = (bullet.aimX) - (bullet.bullet.x);
-        //     bullet.deltaY = (bullet.aimY) - (bullet.bullet.y);
-        //     bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
-        //     bullet.deltaX = bullet.bullet.x;
-        //     bullet.deltaY = bullet.bullet.y;
-        // }
-
-        if(bullet.isFiring && SDL_GetTicks64() >= bullet.existTime) {
-            bullet.isFiring = false;
-            bullet.reloadTime = SDL_GetTicks64() + 3000;
-        }
+        // cout << SDL_GetTicks64() << ' ' << bullet.existTime << endl;
+        
     }
 
     void Setplayer(SDL_Renderer *renderer) {
@@ -156,7 +146,6 @@ public:
         //     temp.SetPlayerBullet(renderer);
         //     bullets.push_back(temp);
         // }
-    
     }
 
 };

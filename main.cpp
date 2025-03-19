@@ -40,7 +40,12 @@ int run() {
         }
         else if(event.curStage == 1) {
             RenderStage1(event, renderer, stage);
-            // cout << event.appIsRunning << endl;
+        }
+        else if(event.curStage == 2) {
+            RenderStage2(event, renderer, stage);
+        }
+        else {
+            event.appIsRunning = false;
         }
     }
 
@@ -51,15 +56,6 @@ int run() {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
 
 
 int main(int argc, char const *argv[]) {

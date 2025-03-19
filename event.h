@@ -21,6 +21,7 @@ public:
     int mouseX = 0;
     int mouseY = 0;
     int curStage = 0;
+    int isRetry = 0;
 
     SDL_Event event;
 
@@ -33,6 +34,7 @@ public:
             if (event.button.button == SDL_BUTTON_LEFT) {
                 mouseButtonLeftDown = true;
                 SDL_GetMouseState(&mouseX, &mouseY);
+                cout << mouseX << ' ' << mouseY << endl;
             }
             if (event.type == SDL_MOUSEBUTTONUP) {
                 mouseButtonLeftDown = false;
@@ -109,6 +111,26 @@ public:
             
             
             
+        }
+    }
+
+    void CheckRetry() {
+        if (event.button.button == SDL_BUTTON_LEFT) {
+            mouseButtonLeftDown = true;
+        }
+
+        if (event.type == SDL_MOUSEBUTTONUP) {
+            mouseButtonLeftDown = false;
+        }
+
+        if(mouseButtonLeftDown) {
+            int x;
+            int y;
+            SDL_GetMouseState(&x, &y);
+            // cout << x << ' ' << y << endl;
+            if(x >= 540 && x <= 735 && y >= 311 && y <= 405) {
+                isRetry = true;
+            }
         }
     }
 

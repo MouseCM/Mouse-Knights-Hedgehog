@@ -31,15 +31,15 @@ void RenderCustomDotCursor(SDL_Renderer* renderer) {
 }
 
 void RenderPlayer(SDL_Renderer *renderer, Player &player) {
-    player.playerHPRect.x = player.player.x;
-    player.playerHPRect.y = player.player.y-25;
-    player.playerHPRect.w = float(player.playerHP)/100 * player.playerW*1.5;
+    // player.playerHPRect.x = player.player.x;
+    // player.playerHPRect.y = player.player.y-25;
+    // player.playerHPRect.w = float(player.playerHP)/100 * player.playerW*1.5;
 
-    SDL_Rect temp = {player.player.x, player.player.y-25, player.playerW*15/10, 10};
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &temp);
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &player.playerHPRect);
+    // SDL_Rect temp = {player.player.x, player.player.y-25, player.playerW*15/10, 10};
+    // SDL_SetRenderDrawColor(renderer, 200, 200, 200, SDL_ALPHA_OPAQUE);
+    // SDL_RenderFillRect(renderer, &temp);
+    // SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+    // SDL_RenderFillRect(renderer, &player.playerHPRect);
     SDL_RenderCopy(renderer, player.playerImg, NULL, &player.player);
 }
 
@@ -55,15 +55,15 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     //     // cout << dino.dinoBullet.x << " " << dino.dinoBullet.y << endl;
     // }
 
-    dino.dinoHPRect.x = dino.dino.x;
-    dino.dinoHPRect.y = dino.dino.y-25;
-    dino.dinoHPRect.w = float(dino.dinoHP)/100 * dino.dinoW*2;
+    // dino.dinoHPRect.x = dino.dino.x;
+    // dino.dinoHPRect.y = dino.dino.y-25;
+    // dino.dinoHPRect.w = float(dino.dinoHP)/100 * dino.dinoW*2;
     
-    SDL_Rect temp = {dino.dino.x, dino.dino.y-25, dino.dinoW*2, 10};
-    SDL_SetRenderDrawColor(renderer, 150, 150, 150, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &temp);
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &dino.dinoHPRect);
+    // SDL_Rect temp = {dino.dino.x, dino.dino.y-25, dino.dinoW*2, 10};
+    // SDL_SetRenderDrawColor(renderer, 150, 150, 150, SDL_ALPHA_OPAQUE);
+    // SDL_RenderFillRect(renderer, &temp);
+    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    // SDL_RenderFillRect(renderer, &dino.dinoHPRect);
 
     SDL_RenderCopy(renderer, dino.dinoImg, NULL, &dino.dino);
 }
@@ -107,7 +107,7 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
     player.bullet.SetPlayerBullet(renderer);
     
 
-    stage.SetStage1(renderer);
+    stage.SetStage(renderer);
 
     int num = 4;
     vector<Dino> dino;
@@ -144,9 +144,11 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
         Fire(event, player);
         player.bullet.Move(event);
+
+        // cout << player.bullet.isFiring << endl;
         
 
-
+        
         
 
 
@@ -160,15 +162,140 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
         
         // IsCollision(player, dino);
 
+        
+
         RenderBackground1(renderer, stage);
 
         if(checkDinoDead(dino)) {
             // cout << "viectory";
             SDL_RenderCopy(renderer, stage.portalIMG, NULL, &stage.portal);
             if(Collision(player.player, stage.portal)) {
-                event.appIsRunning = false;
+                event.curStage++;
+                break;
             }
         }
+        else {
+            if(player.bullet.isLose) {
+                event.CheckRetry();
+                SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
+                if(event.isRetry) {
+                    event.isRetry = false;
+                    event.mouseButtonLeftDown = false;
+                    break;
+                }
+            }
+        }
+
+        
+        
+        RenderPlayer(renderer, player);
+
+        // render bullet
+        if(player.bullet.isFiring) {
+            SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
+        }
+
+        for(int i = 0; i < 4; i++) {
+            RenderDino(renderer, dino[i]);
+        }
+
+        
+
+        RenderCustomDotCursor(renderer);
+        
+
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);   
+    } 
+}
+
+void RenderStage2(Event &event, SDL_Renderer *renderer, Stage &stage) {
+    Player player;
+    player.Setplayer(renderer);
+    player.bullet.SetPlayerBullet(renderer);
+    
+
+    stage.SetStage(renderer);
+
+    int num = 4;
+    vector<Dino> dino;
+    ifstream file("levels/2.txt");
+    int x = 0;
+    int y = 0;
+
+    for(int i = 0; i < num; i++){
+        Dino temp;
+        file >> x >> y;
+        
+        temp.SetDino(renderer, x, y);
+        // temp.Fire();
+        temp.bullet.SetRect(renderer, temp);
+        dino.push_back(temp);
+    
+    }
+
+    file.close();
+
+    stage.SetPortal(renderer);
+
+
+    while(event.appIsRunning) {
+        event.CheckEvent();
+
+        SDL_ShowCursor(SDL_DISABLE);
+
+        
+
+        player.Move(event);
+
+        player.CheckBorderCollision();
+
+        Fire(event, player);
+        player.bullet.Move(event);
+
+        // cout << player.bullet.isFiring << endl;
+        
+
+        
+        
+
+
+        for(int i = 0; i < 4; i++) {
+            IsCollision(player, dino[i]);
+        }
+
+        
+
+        player.bullet.CheckBorderCollision();
+        
+        // IsCollision(player, dino);
+
+        
+
+        RenderBackground1(renderer, stage);
+
+        if(checkDinoDead(dino)) {
+            // cout << "viectory";
+            SDL_RenderCopy(renderer, stage.portalIMG, NULL, &stage.portal);
+            if(Collision(player.player, stage.portal)) {
+                event.curStage++;
+                break;
+            }
+        }
+        else {
+            if(player.bullet.isLose) {
+                event.CheckRetry();
+                SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
+                if(event.isRetry) {
+                    event.isRetry = false;
+                    event.mouseButtonLeftDown = false;
+                    break;
+                }
+            }
+        }
+
+        
         
         RenderPlayer(renderer, player);
 

@@ -19,6 +19,12 @@ public:
     SDL_Texture *borderTextureRight = NULL;
     SDL_Texture *borderTextureBottom = NULL;
 
+
+    SDL_Rect retry = {SCREEN_WIDTH/2-100, SCREEN_HEIGHT/2-50, 200, 100};
+    SDL_Texture *retryImg = NULL;
+
+    
+
     void SetHome(SDL_Renderer *renderer) {
         homeImg = IMG_LoadTexture(renderer, "assets/home.png");
     }
@@ -27,13 +33,15 @@ public:
         portalIMG = IMG_LoadTexture(renderer, "assets/portal.png");
     }
 
-    void SetStage1(SDL_Renderer *renderer) {
+    void SetStage(SDL_Renderer *renderer) {
         backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
 
         borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
         borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
         borderTextureRight = IMG_LoadTexture(renderer, "assets/border/right.jpg");
         borderTextureBottom = IMG_LoadTexture(renderer, "assets/border/bottom.jpg");
+
+        retryImg = IMG_LoadTexture(renderer, "assets/retry.png");
     }
 
 };

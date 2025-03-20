@@ -39,10 +39,13 @@ int run() {
             RenderHome(event, renderer, stage);
         }
         else if(event.curStage == 1) {
-            RenderStage1(event, renderer, stage);
+            RenderStage(event, renderer, stage, "1");
         }
         else if(event.curStage == 2) {
-            RenderStage2(event, renderer, stage);
+            RenderStage(event, renderer, stage, "2");
+        }
+        else if(event.curStage == 3) {
+            RenderStage3(event, renderer, stage, "3");
         }
         else {
             event.appIsRunning = false;

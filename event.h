@@ -20,7 +20,7 @@ public:
     bool exitDown = false;
     int mouseX = 0;
     int mouseY = 0;
-    int curStage = 0;
+    int curStage = 3;
     int isRetry = 0;
 
     SDL_Event event;

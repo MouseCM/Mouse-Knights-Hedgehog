@@ -17,8 +17,6 @@ public:
         dino.x = x;
         dino.y = y;
         dinoHPRect.h = 10;
-
-        
     }
 
     class Bullet {
@@ -46,7 +44,7 @@ public:
             isFiring = true;
         }
 
-        
+
     };
 
     Bullet bullet;

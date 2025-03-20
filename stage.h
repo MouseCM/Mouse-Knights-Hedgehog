@@ -23,6 +23,8 @@ public:
     SDL_Rect retry = {SCREEN_WIDTH/2-100, SCREEN_HEIGHT/2-50, 200, 100};
     SDL_Texture *retryImg = NULL;
 
+    SDL_Texture *box = NULL;
+
     
 
     void SetHome(SDL_Renderer *renderer) {
@@ -44,4 +46,16 @@ public:
         retryImg = IMG_LoadTexture(renderer, "assets/retry.png");
     }
 
+    void SetStage3(SDL_Renderer *renderer) {
+        backgroundImg = IMG_LoadTexture(renderer, "assets/background.jpg");
+
+        borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
+        borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
+        borderTextureRight = IMG_LoadTexture(renderer, "assets/border/right.jpg");
+        borderTextureBottom = IMG_LoadTexture(renderer, "assets/border/bottom.jpg");
+
+        retryImg = IMG_LoadTexture(renderer, "assets/retry.png");
+        box = IMG_LoadTexture(renderer, "assets/box.png");
+    }
+  
 };

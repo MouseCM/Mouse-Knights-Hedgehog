@@ -67,6 +67,8 @@ public:
         int existTime = 5000;
         int damage = 100;
         bool isLose = false;
+        int preX;
+        int preY;
 
 
         void SetPlayerBullet(SDL_Renderer *renderer) {
@@ -75,6 +77,8 @@ public:
             bullet.w = rectW * 1.5;
             bullet.h = rectH * 1.5;
         }
+
+        
 
         void CheckBorderCollision() {
             if(bullet.x <= 25){
@@ -94,6 +98,36 @@ public:
                 angle = -angle;
             }
         }
+
+        void CheckObjectCollision(SDL_Rect object) {
+            if(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
+                while(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
+                    preX = deltaX - cos(angle) * speed;
+                    preY = deltaY - sin(angle) * speed;
+                    deltaX -= cos(angle) * speed;
+                    deltaY -= sin(angle) *speed;
+                    bullet.x = deltaX;
+                    bullet.y = deltaY;
+                }
+
+                if(preX < object.x) {
+                    angle = M_PI - angle;
+                    deltaX = object.x-1;
+                }
+                else if(preX > object.x + object.w) {
+                    angle = M_PI - angle;
+                    deltaX = object.x + object.w+1;
+                }
+                else if(preY < object.y) {
+                    angle = -angle;
+                    deltaY = object.y-1;
+                }
+                else if(preY > object.y + object.h){
+                    angle = -angle;
+                    deltaY = object.y+object.h+1;
+                }
+            }
+         }
 
         void Move(Event &event) {
             if(isFiring && SDL_GetTicks64() >= existTime) {

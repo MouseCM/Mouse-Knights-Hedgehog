@@ -101,7 +101,7 @@ bool checkDinoDead(vector<Dino> dino) {
 }
 
 
-void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
+void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string level) {
     Player player;
     player.Setplayer(renderer);
     player.bullet.SetPlayerBullet(renderer);
@@ -109,9 +109,14 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
     stage.SetStage(renderer);
 
-    int num = 4;
+    string input = "levels/" + level + ".txt";
+    ifstream file(input);
+    
+    int num = 0;
+    file >> num;
+
     vector<Dino> dino;
-    ifstream file("levels/1.txt");
+    
     int x = 0;
     int y = 0;
 
@@ -126,7 +131,12 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
     
     }
 
+    
+
+
     file.close();
+
+
 
     stage.SetPortal(renderer);
 
@@ -152,7 +162,7 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
         
 
 
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < num; i++) {
             IsCollision(player, dino[i]);
         }
 
@@ -195,7 +205,7 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
             SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
         }
 
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < num; i++) {
             RenderDino(renderer, dino[i]);
         }
 
@@ -210,31 +220,47 @@ void RenderStage1(Event &event, SDL_Renderer *renderer, Stage &stage) {
     } 
 }
 
-void RenderStage2(Event &event, SDL_Renderer *renderer, Stage &stage) {
+
+
+
+void RenderStage3(Event &event, SDL_Renderer *renderer, Stage &stage, string level) {
     Player player;
     player.Setplayer(renderer);
     player.bullet.SetPlayerBullet(renderer);
     
 
-    stage.SetStage(renderer);
+    stage.SetStage3(renderer);
 
-    int num = 4;
+    string input = "levels/" + level + ".txt";
+    ifstream file(input);
+    
+    int num = 0;
+    file >> num;
+
+    int x;
+    int y;
+
     vector<Dino> dino;
-    ifstream file("levels/2.txt");
-    int x = 0;
-    int y = 0;
 
     for(int i = 0; i < num; i++){
         Dino temp;
         file >> x >> y;
+        // cout << x << ' ' << y << endl;
         
         temp.SetDino(renderer, x, y);
         // temp.Fire();
         temp.bullet.SetRect(renderer, temp);
         dino.push_back(temp);
-    
     }
 
+    int boxSize = 0;
+    file >> boxSize;
+    vector<SDL_Rect> rectBox(boxSize);
+    for(int i = 0; i < boxSize; i++) {
+        file >> rectBox[i].x >> rectBox[i].y >> rectBox[i].w >> rectBox[i].h;
+    }
+
+    // cout << dino.size();
     file.close();
 
     stage.SetPortal(renderer);
@@ -261,13 +287,17 @@ void RenderStage2(Event &event, SDL_Renderer *renderer, Stage &stage) {
         
 
 
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < num; i++) {
             IsCollision(player, dino[i]);
         }
 
         
 
         player.bullet.CheckBorderCollision();
+
+        for(int i = 0; i < boxSize; i++) {
+            player.bullet.CheckObjectCollision(rectBox[i]);
+        }
         
         // IsCollision(player, dino);
 
@@ -304,8 +334,13 @@ void RenderStage2(Event &event, SDL_Renderer *renderer, Stage &stage) {
             SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
         }
 
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < num; i++) {
             RenderDino(renderer, dino[i]);
+        }
+
+        for(int i = 0; i < boxSize; i++) {
+            // cout << rectBox[i].y;
+            SDL_RenderCopy(renderer, stage.box, NULL, &rectBox[i]);
         }
 
         

@@ -44,7 +44,7 @@ public:
             isFiring = true;
         }
 
-
+        
     };
 
     Bullet bullet;

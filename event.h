@@ -20,7 +20,7 @@ public:
     bool exitDown = false;
     int mouseX = 0;
     int mouseY = 0;
-    int curStage = 3;
+    int curStage = 1;
     int isRetry = 0;
 
     SDL_Event event;
@@ -29,6 +29,10 @@ public:
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 appIsRunning = false;
+            }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                dDown = true;
             }
 
             if (event.button.button == SDL_BUTTON_LEFT) {

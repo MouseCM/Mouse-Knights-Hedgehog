@@ -1,7 +1,7 @@
 SRC_DIR = .
 BUILD_DIR = build/debug
 CC = g++
-SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
+SRC_FILES = $(wildcard $(SRC_DIR)/main.cpp)
 OBJ_NAME = play
 INCLUDE_PATHS = -I/opt/homebrew/opt/sdl2/include/SDL2 -I/opt/homebrew/Cellar/sdl2_image/2.8.5/include 
 LIBRARY_PATHS = -L/opt/homebrew/opt/sdl2/lib -L/opt/homebrew/Cellar/sdl2_image/2.8.5/lib

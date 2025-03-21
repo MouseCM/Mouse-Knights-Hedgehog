@@ -18,20 +18,20 @@ public:
 
     
 
-    void CheckBorderCollision() {
-        if (player.x < 25) {
-            player.x = 26;
-        }
-        else if (player.x + player.w + 26 >= SCREEN_WIDTH) {
-            player.x = SCREEN_WIDTH - player.w -25;
-        }
-        if (player.y < 25) {
-            player.y = 26;
-        }
-        else if (player.y + player.h + 26 >= SCREEN_HEIGHT) {
-            player.y = SCREEN_HEIGHT - player.h -25;
-        }
-    }
+    // void CheckBorderCollision() {
+        // if (player.x < ) {
+        //     player.x = 26;
+        // }
+        // else if (player.x + player.w + 26 >= STAGE_WIDTH) {
+        //     player.x = STAGE_WIDTH - player.w -25;
+        // }
+        // if (player.y < 25) {
+        //     player.y = 26;
+        // }
+        // else if (player.y + player.h + 26 >= STAGE_HEIGHT) {
+        //     player.y = STAGE_HEIGHT - player.h -25;
+        // }
+    // }
 
     void Move(Event &event) {
         if (event.wDown) {
@@ -85,48 +85,48 @@ public:
                 deltaX = 26;
                 angle = M_PI - angle;
             }
-            else if (bullet.x + bullet.w + 25 >= SCREEN_WIDTH) {
-                deltaX = SCREEN_WIDTH-bullet.w-26;
+            else if (bullet.x + bullet.w + 25 >= STAGE_WIDTH) {
+                deltaX = STAGE_WIDTH-bullet.w-26;
                 angle = M_PI - angle;
             }
             else if(bullet.y <= 25){
                 deltaY = 26;
                 angle = -angle;
             }
-            else if (bullet.y + bullet.h + 25 >= SCREEN_HEIGHT) {
-                deltaY = SCREEN_HEIGHT-bullet.h-26;
+            else if (bullet.y + bullet.h + 25 >= STAGE_HEIGHT) {
+                deltaY = STAGE_HEIGHT-bullet.h-26;
                 angle = -angle;
             }
         }
 
         void CheckObjectCollision(SDL_Rect object) {
-            if(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
-                while(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
-                    preX = deltaX - cos(angle) * speed;
-                    preY = deltaY - sin(angle) * speed;
-                    deltaX -= cos(angle) * speed;
-                    deltaY -= sin(angle) *speed;
-                    bullet.x = deltaX;
-                    bullet.y = deltaY;
-                }
+            // if(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
+            //     while(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
+            //         preX = deltaX - cos(angle) * speed;
+            //         preY = deltaY - sin(angle) * speed;
+            //         deltaX -= cos(angle) * speed;
+            //         deltaY -= sin(angle) *speed;
+            //         bullet.x = deltaX;
+            //         bullet.y = deltaY;
+            //     }
 
-                if(preX < object.x) {
-                    angle = M_PI - angle;
-                    deltaX = object.x-1;
-                }
-                else if(preX > object.x + object.w) {
-                    angle = M_PI - angle;
-                    deltaX = object.x + object.w+1;
-                }
-                else if(preY < object.y) {
-                    angle = -angle;
-                    deltaY = object.y-1;
-                }
-                else if(preY > object.y + object.h){
-                    angle = -angle;
-                    deltaY = object.y+object.h+1;
-                }
-            }
+            //     if(preX < object.x) {
+            //         angle = M_PI - angle;
+            //         deltaX = object.x-1;
+            //     }
+            //     else if(preX > object.x + object.w) {
+            //         angle = M_PI - angle;
+            //         deltaX = object.x + object.w+1;
+            //     }
+            //     else if(preY < object.y) {
+            //         angle = -angle;
+            //         deltaY = object.y-1;
+            //     }
+            //     else if(preY > object.y + object.h){
+            //         angle = -angle;
+            //         deltaY = object.y+object.h+1;
+            //     }
+            // }
          }
 
         void Move(Event &event) {
@@ -173,7 +173,7 @@ public:
         player.w = playerW*1.5; 
         player.h = playerH*1.5;
         player.x = SCREEN_WIDTH/2-player.w/2; 
-        player.y = SCREEN_HEIGHT/1.2-player.h/2; 
+        player.y = SCREEN_HEIGHT/2-player.h/2; 
         playerHPRect.h = 10;
         // for(int i = 0; i < bullet.maxBullet; i++){
         //     Bullet temp;

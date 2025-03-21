@@ -16,8 +16,8 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     // Create an application window with the following settings:
     window = SDL_CreateWindow(
         "Mouse Knights: Hedgehog", // window title
-        SDL_WINDOWPOS_UNDEFINED, // initial x position
-        SDL_WINDOWPOS_UNDEFINED, // initial y position
+        0, // initial x position
+        0, // initial y position
         SCREEN_WIDTH, // SCREEN_WIDTH, in pixels
         SCREEN_HEIGHT, // SCREEN_HEIGHT, in pixels
         SDL_WINDOW_SHOWN // flags - see below

@@ -65,7 +65,7 @@ public:
         float angle = 0;
         int reloadTime = SDL_GetTicks64();
         int existTime = 5000;
-        int damage = 100;
+        int damage = 10;
         bool isLose = false;
         int preX;
         int preY;
@@ -80,24 +80,28 @@ public:
 
         
 
-        void CheckBorderCollision() {
-            if(bullet.x <= 25){
-                deltaX = 26;
-                angle = M_PI - angle;
-            }
-            else if (bullet.x + bullet.w + 25 >= STAGE_WIDTH) {
-                deltaX = STAGE_WIDTH-bullet.w-26;
-                angle = M_PI - angle;
-            }
-            else if(bullet.y <= 25){
-                deltaY = 26;
-                angle = -angle;
-            }
-            else if (bullet.y + bullet.h + 25 >= STAGE_HEIGHT) {
-                deltaY = STAGE_HEIGHT-bullet.h-26;
-                angle = -angle;
-            }
-        }
+        // void CheckBorderCollision() {
+        //     if(bullet.x <= 25){
+        //         // deltaX = 26;
+        //         // angle = M_PI - angle;
+        //         isFiring = false;
+        //     }
+        //     else if (bullet.x + bullet.w + 25 >= STAGE_WIDTH) {
+        //         // deltaX = STAGE_WIDTH-bullet.w-26;
+        //         // angle = M_PI - angle;
+        //         isFiring = false;
+        //     }
+        //     else if(bullet.y <= 25){
+        //         // deltaY = 26;
+        //         // angle = -angle;
+        //         isFiring = false;
+        //     }
+        //     else if (bullet.y + bullet.h + 25 >= STAGE_HEIGHT) {
+        //         // deltaY = STAGE_HEIGHT-bullet.h-26;
+        //         // angle = -angle;
+        //         isFiring = false;
+        //     }
+        // }
 
         void CheckObjectCollision(SDL_Rect object) {
             // if(bullet.x >= object.x && bullet.x <= object.x+object.w && bullet.y >= object.y && bullet.y <= object.y+object.h) {
@@ -130,10 +134,10 @@ public:
          }
 
         void Move(Event &event) {
-            if(isFiring && SDL_GetTicks64() >= existTime) {
-                isFiring = false;
-                isLose = true;
-            }
+            // if(isFiring && SDL_GetTicks64() >= existTime) {
+            //     isFiring = false;
+            //     isLose = true;
+            // }
 
             if(isFiring) {
                 bullet.x = deltaX;
@@ -150,22 +154,22 @@ public:
 
     Bullet bullet;
 
-    void Fire() {   
+    // void Fire() {   
         
-        if(bullet.isFiring == 0 && bullet.isLose == false) {
-            SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
-            bullet.deltaX = bullet.aimX - (player.x + player.w/2);
-            bullet.deltaY = bullet.aimY - (player.y + player.h/2);
-            bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
-            bullet.deltaX = player.x + player.w/2 - bullet.bullet.w/2;
-            bullet.deltaY = player.y + player.h/2 - bullet.bullet.h/2;
-            bullet.existTime = SDL_GetTicks64() + 3000;
-            bullet.isFiring = true;
-        }
+    //     if(bullet.isFiring == 0 && bullet.isLose == false) {
+            // SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
+            // bullet.deltaX = bullet.aimX - (player.x + player.w/2);
+            // bullet.deltaY = bullet.aimY - (player.y + player.h/2);
+            // bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
+            // bullet.deltaX = player.x + player.w/2 - bullet.bullet.w/2;
+            // bullet.deltaY = player.y + player.h/2 - bullet.bullet.h/2;
+            // // bullet.existTime = SDL_GetTicks64() + 1000;
+            // bullet.isFiring = true;
+    //     }
 
-        // cout << SDL_GetTicks64() << ' ' << bullet.existTime << endl;
+    //     // cout << SDL_GetTicks64() << ' ' << bullet.existTime << endl;
         
-    }
+    // }
 
     void Setplayer(SDL_Renderer *renderer) {
         playerImg = IMG_LoadTexture(renderer, "assets/mouse.png");
@@ -174,7 +178,8 @@ public:
         player.h = playerH*1.5;
         player.x = SCREEN_WIDTH/2-player.w/2; 
         player.y = SCREEN_HEIGHT/2-player.h/2; 
-        playerHPRect.h = 10;
+        // playerHPRect.h = 40;
+
         // for(int i = 0; i < bullet.maxBullet; i++){
         //     Bullet temp;
         //     temp.SetPlayerBullet(renderer);

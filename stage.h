@@ -45,8 +45,8 @@ public:
         // borderTextureRight = IMG_LoadTexture(renderer, "assets/border/right.jpg");
         // borderTextureBottom = IMG_LoadTexture(renderer, "assets/border/bottom.jpg");
 
-        retry = {STAGE_WIDTH/2-100, STAGE_HEIGHT/2-50, 200, 100};
-        portal = {STAGE_WIDTH/2 -20, STAGE_HEIGHT/2 - 40, 40, 80};
+        retry = {STAGE_WIDTH/2-100-INIT_X, STAGE_HEIGHT/2-50-INIT_Y, 200, 100};
+        portal = {STAGE_WIDTH/2 -20 - INIT_X, STAGE_HEIGHT/2 - 40 - INIT_Y, 40, 80};
 
         retryImg = IMG_LoadTexture(renderer, "assets/retry.png");
     }

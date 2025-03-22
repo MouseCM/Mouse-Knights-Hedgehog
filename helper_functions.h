@@ -40,9 +40,22 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     cout << "Setup successfully";
 }
 
-void Fire(Event &event, Player &player) {
+void Fire(SDL_Renderer *renderer, Event &event, Player &player, vector<Player::Bullet> &bullets) {
     if (event.mouseButtonLeftDown) {
-        player.Fire();
+        if(SDL_GetTicks64() >= player.bullet.reloadTime) {
+            Player::Bullet bullet;
+            bullet.SetPlayerBullet(renderer);
+            SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
+            bullet.deltaX = bullet.aimX - (player.player.x + player.player.w/2);
+            bullet.deltaY = bullet.aimY - (player.player.y + player.player.h/2);
+            bullet.angle = atan2(bullet.deltaY, bullet.deltaX);
+            bullet.deltaX = player.player.x + player.player.w/2 - bullet.bullet.w/2;
+            bullet.deltaY = player.player.y + player.player.h/2 - bullet.bullet.h/2;
+            // bullet.existTime = SDL_GetTicks64() + 1000;
+            bullet.isFiring = true;
+            bullets.push_back(bullet);
+            player.bullet.reloadTime = SDL_GetTicks64() + 500;
+        }
     }
 }
 bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
@@ -55,14 +68,30 @@ bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
     return false;
 }
 
-void IsCollision(Player &player, Dino &dino) {
+void CheckBorderCollision(Player::Bullet &bullet, Stage &stage) {
+    if(bullet.bullet.x < stage.background.x+668+bullet.speed) {
+        bullet.isFiring = false;
+    }
+    else if (bullet.bullet.x > stage.background.x + 1892 - bullet.bullet.w-bullet.speed) {
+        bullet.isFiring = false;
+    }
+    if(bullet.bullet.y < stage.background.y+390+bullet.speed) {
+        bullet.isFiring = false;
+    }
+    else if(bullet.bullet.y > stage.background.y + 1050 - bullet.bullet.h-bullet.speed) {
+        bullet.isFiring = false;
+    }
+}
+
+void IsCollision(Player::Bullet &bullet, Dino &dino) {
     if (dino.dinoHP <= 0) {
         return;
     }
 
-    if (player.bullet.isFiring) {
-        if(Collision(player.bullet.bullet, dino.dino)) {
-            dino.dinoHP -= player.bullet.damage;
+    if (bullet.isFiring) {
+        if(Collision(bullet.bullet, dino.dino)) {
+            dino.dinoHP -= bullet.damage;
+            bullet.isFiring = false;
             // player.bullet.isFiring = false;
         }
 
@@ -72,4 +101,28 @@ void IsCollision(Player &player, Dino &dino) {
     }
 
     
+}
+
+
+
+bool CheckBorderCollision(Player &player, Stage &stage) {
+    bool val = false;
+    if (player.player.x <= stage.background.x + 668) {
+        player.player.x = stage.background.x + 668;
+        val = true;
+    }
+    else if (player.player.x + player.player.w >= stage.background.x + 1892) {
+        player.player.x = stage.background.x + 1892 - player.player.w;
+        val = true;
+    }
+    if (player.player.y <= stage.background.y + 390) {
+        player.player.y = stage.background.y + 390;
+        val = true;
+    }
+    else if (player.player.y + player.player.h >= stage.background.y + 1050) {
+        player.player.y = stage.background.y + 1050 - player.player.h;
+        val = true;
+    }
+
+    return val;
 }

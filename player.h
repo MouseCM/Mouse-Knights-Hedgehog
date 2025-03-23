@@ -140,10 +140,10 @@ public:
             // }
 
             if(isFiring) {
-                bullet.x = deltaX;
-                bullet.y = deltaY;
                 deltaX += cos(angle) * speed;
                 deltaY += sin(angle) * speed;
+                bullet.x = deltaX;
+                bullet.y = deltaY;
             }
 
             // cout << rotateX << ' ' << rotateY << endl;

@@ -110,86 +110,6 @@ bool CheckDinoDead(vector<Dino> dino) {
     return true;
 }
 
-void MoveScreen(Event &event, Player &player, Stage &stage, vector<Dino> &dino, vector<Player::Bullet> &bullets) {
-    if (event.wDown) {
-        stage.background.y += 5;
-        if(stage.background.y > 0-player.player.h) {
-            stage.background.y = 0-player.player.h;
-        }
-        else {
-            stage.portal.y += 5;
-            // stage.background.y = min(stage.background.y+5, 0-player.player.h);
-            // player.player.y = player.player.y+5;
-            for(int i = 0; i < dino.size(); i++){
-                dino[i].dino.y += 5;
-            }
-            for(int i = 0; i < bullets.size(); i++) {
-                bullets[i].bullet.y += 5;
-            }
-        }
-        // stage.retry.y += 5;
-        
-    }
-    if (event.aDown) {
-        stage.background.x += 5;
-        if(stage.background.x > -26-player.player.w/2) {
-            stage.background.x = -26-player.player.w/2;
-        }
-        else {
-            stage.portal.x += 5;
-            // stage.background.x = min(stage.background.x+5, -26-player.player.w/2);
-            // player.player.x = player.player.x+5;
-            for(int i = 0; i < dino.size(); i++){
-                dino[i].dino.x += 5;
-            }
-            for(int i = 0; i < bullets.size(); i++) {
-                bullets[i].bullet.x += 5;
-            }
-        }
-        // stage.retry.x += 5;
-        
-    }
-    if (event.sDown) {
-        stage.background.y -= 5;
-        if(stage.background.y < -720+player.player.h) {
-            stage.background.y = -720+player.player.h;
-        }
-        else {
-            stage.portal.y -= 5;
-            // stage.background.y = max(stage.background.y-5, -720+player.player.h);
-            // player.player.y = player.player.y-5;
-            for(int i = 0; i < dino.size(); i++){
-                dino[i].dino.y -= 5;
-            }
-            for(int i = 0; i < bullets.size(); i++) {
-                bullets[i].bullet.y -= 5;
-            }
-        }
-        // stage.retry.y -= 5;
-        
-    }
-    if (event.dDown) {
-        // stage.background.x = max(stage.background.x-5, -1252+player.player.w/2);
-        stage.background.x -= 5;
-        if(stage.background.x < -1252+player.player.w/2) {
-            stage.background.x = -1252+player.player.w/2;
-        }
-        else {
-            stage.portal.x -= 5;
-        
-            for(int i = 0; i < dino.size(); i++){
-                dino[i].dino.x -= 5;
-            }
-
-            for(int i = 0; i < bullets.size(); i++) {
-                bullets[i].bullet.x -= 5;
-            }
-        }
-        // player.player.x = player.player.x - 5;
-        // stage.retry.x -= 5;
-        
-    }
-}
 
 
 
@@ -198,6 +118,10 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
     player.Setplayer(renderer);
     player.bullet.SetPlayerBullet(renderer);
     
+    vector<vector<bool>> canMove(RIGHT-LEFT+1, vector<bool>(DOWN-UP+1, 1));
+
+    
+ 
     
 
     stage.SetStage(renderer);
@@ -226,7 +150,22 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
     
     }
 
-    
+    vector<SDL_Rect> box;
+    file >> num;
+    // cout << num << endl;
+    for(int i = 0; i < num; i++) {
+        SDL_Rect temp;
+        file >> temp.x >> temp.y >> temp.w >> temp.h;
+        box.push_back(temp);
+    }
+
+    for(int t = 0; t < box.size(); t++) {
+        for(int i = box[t].x; i <= box[t].x+box[t].w; i++) {
+            for(int j = box[t].y; j <= box[t].y+box[t].h; j++) {
+                canMove[i-LEFT][j-UP] = false;
+            }
+        }
+    }
 
 
     file.close();
@@ -234,7 +173,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
 
 
     stage.SetPortal(renderer);
-
+    // cout << player.player.w << ' ' << player.player.h << endl;
 
     while(event.appIsRunning) {
 
@@ -249,8 +188,8 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         
         
         
-        MoveScreen(event, player, stage, dino, bullets);
-        
+        MoveCamera(event, player, stage, dino, bullets, canMove);
+        // cout << stage.camera.x+SCREEN_WIDTH/2-LEFT << ' ' << stage.camera.y+SCREEN_HEIGHT/2-UP << endl;
 
         // player.CheckBorderCollision();
 
@@ -266,11 +205,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         
 
 
-        for(int i = 0; i < dino.size(); i++) {
-            for(int j = 0; j < bullets.size(); j++) {
-                IsCollision(bullets[j], dino[i]);
-            }
-        }
+        
 
         
 
@@ -281,6 +216,24 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         // render after this
 
         RenderBackground1(renderer, stage);
+
+
+        Fire(renderer, event, player, bullets);
+        for(int i = 0; i < bullets.size(); i++) {
+            if(bullets[i].isFiring) {
+                bullets[i].Move(event);
+                CheckBorderCollision(bullets[i], stage, box);
+                if(bullets[i].isFiring) {
+                    SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &bullets[i].bullet);
+                }
+            }
+        }
+
+        for(int i = 0; i < dino.size(); i++) {
+            for(int j = 0; j < bullets.size(); j++) {
+                IsCollision(bullets[j], dino[i]);
+            }
+        }
 
         if(CheckDinoDead(dino)) {
             // cout << "viectory";
@@ -304,16 +257,9 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         
-        Fire(renderer, event, player, bullets);
-        for(int i = 0; i < bullets.size(); i++) {
-            if(bullets[i].isFiring) {
-                bullets[i].Move(event);
-                CheckBorderCollision(bullets[i], stage);
-                SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &bullets[i].bullet);
-            }
-        }
         
-        RenderPlayer(renderer, player);
+        
+        
 
 
         // render bullet
@@ -326,6 +272,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         
+        RenderPlayer(renderer, player);
 
         RenderCustomDotCursor(renderer);
         
@@ -334,6 +281,10 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         SDL_RenderPresent(renderer);
         SDL_Delay(16);   
     } 
+
+    bullets.clear();
+    canMove.clear();
+    box.clear();
 }
 
 

@@ -25,10 +25,11 @@ public:
         SDL_Rect rect = {0, 0, 0, 0};
         int W = 0;
         int H = 0;
-        int dinoSpeed = 5;
+        // int dinoSpeed = 10;
         int rectSpeed = 10;
         int rectNum = 0;
         bool isFiring = false;
+        int reloadTime = SDL_GetTicks64();
 
         void SetRect(SDL_Renderer *renderer, Dino dino) {
             rectImg = IMG_LoadTexture(renderer, "assets/rect.png");

@@ -14,6 +14,7 @@
 #include "event.h"
 #include "player.h"
 #include "enemies/dino.h"
+#include "enemies/fire.h"
 #include "stage.h"
 #include "helper_functions.h"
 #include "rendering_functions.h"
@@ -35,6 +36,7 @@ int run() {
 
 
     while(event.appIsRunning) {
+        // cout << event.curStage << endl;
         if(event.curStage == 0) {
             RenderHome(event, renderer, stage);
         }
@@ -44,8 +46,8 @@ int run() {
         else if(event.curStage == 2) {
             RenderStage(event, renderer, stage, "2");
         }
-        else if(event.curStage == 3) {
-            RenderStage(event, renderer, stage, "3");
+        else if(event.curStage == END) {
+            RenderEnd(event, renderer, stage);
         }
         else {
             event.appIsRunning = false;

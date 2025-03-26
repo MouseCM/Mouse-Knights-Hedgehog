@@ -52,8 +52,8 @@ public:
 
     class Bullet {
     public:
-        int rectW;
-        int rectH;
+        int rectW = 0;
+        int rectH = 0;
         SDL_Texture *bulletImg = NULL;
         SDL_Rect bullet = {26, 26, 26, 26};
         int speed = 40;
@@ -64,11 +64,7 @@ public:
         bool isFiring = false;
         float angle = 0;
         int reloadTime = SDL_GetTicks64();
-        int existTime = 5000;
         int damage = 10;
-        bool isLose = false;
-        int preX;
-        int preY;
 
 
         void SetPlayerBullet(SDL_Renderer *renderer) {

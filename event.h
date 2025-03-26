@@ -16,12 +16,16 @@ public:
     bool rightArrowDown = false;
     bool mouseButtonDown = false;
     bool mouseButtonLeftDown = false;
-    bool playDown = false;
+    bool isNewGame = false;
+    bool isContinue = false;
     bool exitDown = false;
     int mouseX = 0;
     int mouseY = 0;
-    int curStage = 1;
-    int isRetry = 0;
+    int curStage = 0;
+    bool isRetry = 0;
+    bool isLose = false;
+    // bool isPaused = false;
+
 
     SDL_Event event;
 
@@ -38,7 +42,6 @@ public:
             if (event.button.button == SDL_BUTTON_LEFT) {
                 mouseButtonLeftDown = true;
                 SDL_GetMouseState(&mouseX, &mouseY);
-                cout << mouseX << ' ' << mouseY << endl;
             }
             if (event.type == SDL_MOUSEBUTTONUP) {
                 mouseButtonLeftDown = false;
@@ -46,14 +49,14 @@ public:
 
             // cout << mouseX << ' ' << mouseY << endl;
             
-            if(mouseX >= 229 && mouseX <= 1046 && mouseY >= 185 && mouseY <= 419) {
-                playDown = true;
+            if(mouseX >= 373 && mouseX <= 906 && mouseY >= 245 && mouseY <= 398) {
+                isNewGame = true;
             } 
-            if(mouseX >= 496 && mouseX <= 779 && mouseY >= 468 && mouseY <= 540) {
-                if(mouseButtonLeftDown) {
-                    appIsRunning = false;
-                    // cout << '1';
-                }
+            if(mouseX >= 425 && mouseX <= 855 && mouseY >= 424 && mouseY <= 549) {
+                isContinue = true;
+            }
+            if(mouseX >= 425 && mouseX <= 855 && mouseY >= 575 && mouseY <= 659) {
+                appIsRunning = false;
             }
 
         }
@@ -67,56 +70,56 @@ public:
                 appIsRunning = false;
             }
 
+            if(!isLose) {
+                if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        appIsRunning = false;
+                    }
+                    if (event.key.keysym.scancode == SDL_SCANCODE_W) {
+                        wDown = true;
+                    }
+                    if (event.key.keysym.scancode == SDL_SCANCODE_A) {
+                        aDown = true;
+                    }
+                    if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+                        sDown = true;
+                    }
+                    if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                        dDown = true;
+                    }
+                    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        appIsRunning = false;
+                    }
+                
+                }
+                else if (event.type == SDL_KEYUP) {
+                    if (event.key.keysym.scancode == SDL_SCANCODE_W) {
+                        wDown = false;
+                    }
+                    else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
+                        aDown = false;
+                    }
+                    else if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+                        sDown = false;
+                    }
+                    else if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                        dDown = false;
+                    }
 
-            if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-                    appIsRunning = false;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_W) {
-                    wDown = true;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_A) {
-                    aDown = true;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_S) {
-                    sDown = true;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_D) {
-                    dDown = true;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-                    appIsRunning = false;
-                }
-            
-            }
-            else if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.scancode == SDL_SCANCODE_W) {
-                    wDown = false;
-                }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
-                    aDown = false;
-                }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_S) {
-                    sDown = false;
-                }
-                else if (event.key.keysym.scancode == SDL_SCANCODE_D) {
-                    dDown = false;
                 }
 
+                
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    mouseButtonLeftDown = true;
+                }
+                if (event.type == SDL_MOUSEBUTTONUP) {
+                    mouseButtonLeftDown = false;
+                }
             }
-
-            
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                mouseButtonLeftDown = true;
-            }
-            if (event.type == SDL_MOUSEBUTTONUP) {
-                mouseButtonLeftDown = false;
-            }
-            
-            
             
         }
     }
+
 
     void CheckRetry() {
         if (event.button.button == SDL_BUTTON_LEFT) {
@@ -127,6 +130,7 @@ public:
             mouseButtonLeftDown = false;
         }
 
+        // cout << "SDfsdfsafda" << mouseButtonLeftDown << endl;
         if(mouseButtonLeftDown) {
             int x;
             int y;
@@ -135,6 +139,37 @@ public:
             if(x >= 540 && x <= 735 && y >= 311 && y <= 405) {
                 isRetry = true;
             }
+        }
+    }
+
+    void CheckEnd() {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                appIsRunning = false;
+            }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_D) {
+                dDown = true;
+            }
+
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                mouseButtonLeftDown = true;
+                SDL_GetMouseState(&mouseX, &mouseY);
+            }
+            if (event.type == SDL_MOUSEBUTTONUP) {
+                mouseButtonLeftDown = false;
+            }
+
+            // cout << mouseX << ' ' << mouseY << endl;
+            
+            if(mouseX >= 417 && mouseX <= 862 && mouseY >= 507 && mouseY <= 618) {
+                isNewGame = true;
+            } 
+
+            if(mouseX >= 492 && mouseX <= 788 && mouseY >= 629 && mouseY <= 714) {
+                appIsRunning = false;
+            }
+
         }
     }
 

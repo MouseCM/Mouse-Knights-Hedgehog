@@ -36,17 +36,22 @@ void RenderCustomDotCursor(SDL_Renderer* renderer) {
 }
 
 void RenderPlayer(SDL_Renderer *renderer, Player &player) {
+    if(player.playerHP <= 0) return; 
     player.playerHPRect.x = 30;
     player.playerHPRect.y = 30;
-    player.playerHPRect.w = float(player.playerHP)/100 * player.playerW*5;
+    player.playerHPRect.w = float(player.playerHP)/100 * player.player.w*5;
     player.playerHPRect.h = 20; 
 
-    SDL_Rect temp = {30, 30, player.playerW*5, 20};
+    SDL_Rect temp = {30, 30, player.player.w*5, 20};
     SDL_SetRenderDrawColor(renderer, 200, 200, 200, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &temp);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &player.playerHPRect);
-    SDL_RenderCopy(renderer, player.playerImg, NULL, &player.player);
+    SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
+}
+
+void RenderDeadPlayer(SDL_Renderer *renderer, Player &player) {
+    SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
 }
 
 void RenderDino(SDL_Renderer *renderer, Dino &dino) {
@@ -73,6 +78,33 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
 
     SDL_RenderCopy(renderer, dino.rectImg, NULL, &dino.rect);
 }
+
+void RenderFirew(SDL_Renderer *renderer, Firew &firew) {
+    if (firew.hp <= 0) {
+        return;
+    }
+
+    // dino.dinoBullet.x += 1;
+    // dino.dinoBullet.y += 1;
+    // if (dino.isFiring && dino.dinoBulletNum >= 1) {
+    //     SDL_RenderCopy(renderer, dino.dinoBulletImg, NULL, &dino.dinoBullet);
+    //     // cout << dino.dinoBullet.x << " " << dino.dinoBullet.y << endl;
+    // }
+
+    firew.hpRect.x = firew.rect.x;
+    firew.hpRect.y = firew.rect.y-25;
+    firew.hpRect.w = float(firew.hp)/100 * firew.rect.w;
+    
+    SDL_Rect temp = {firew.rect.x, firew.rect.y-25, firew.rect.h, 10};
+    SDL_SetRenderDrawColor(renderer, 150, 150, 150, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &temp);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &firew.hpRect);
+
+    SDL_RenderCopy(renderer, firew.rectImg, NULL, &firew.rect);
+}
+
+
 
 
 
@@ -117,26 +149,25 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
 void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string level) {
     Player player;
-    player.Setplayer(renderer);
-    player.bullet.SetPlayerBullet(renderer);
-    
     vector<vector<bool>> canMove(RIGHT-LEFT+1, vector<bool>(DOWN-UP+1, 1));
-    // vector<vector<bool>>* canMove = new vector<vector<bool>>(RIGHT-LEFT+1, vector<bool>(DOWN-UP+1, 1));
+    vector<Dino> dinos;
+    vector<Player::Bullet> bullets;
+    vector<Firew> firews;
 
-    
- 
-    
+
 
     stage.SetStage(renderer, level);
 
+    player.Setplayer(renderer);
+    player.bullet.SetPlayerBullet(renderer);
+    
+    
     string input = "levels/" + level + ".txt";
     ifstream file(input);
     
+
     int num = 0;
     file >> num;
-
-    vector<Dino> dinos;
-    vector<Player::Bullet> bullets;
 
     
     int x = 0;
@@ -150,7 +181,6 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         // temp.Fire();
         temp.bullet.SetRect(renderer);
         dinos.push_back(temp);
-    
     }
 
     vector<SDL_Rect> boxes;
@@ -170,6 +200,15 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
     }
 
+    file >> num;
+
+    for(int i = 0; i < num; i++) {
+        file >> x >> y;
+        Firew temp;
+        temp.SetRect(renderer, x-INIT_X, y-INIT_Y);
+        firews.push_back(temp);
+    }
+
 
     file.close();
 
@@ -179,40 +218,15 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
     // cout << player.player.w << ' ' << player.player.h << endl;
     // player.playerHP = 20;
 
+    SDL_ShowCursor(SDL_DISABLE);
+
     while(event.appIsRunning) {
+        // cout << stage.background.x << ' ' << stage.background.y << endl;
         event.CheckEvent();
-        SDL_ShowCursor(SDL_DISABLE);
-
         
-        // player.Move(event);
-        
-        
-        
-        MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes);
-
-        // player.CheckBorderCollision();
-
-        
-
-        
-        // player.bullet.Move(event);
-
-        // cout << player.bullet.isFiring << endl;
-        
-
-        
-        
+        MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes, firews);
 
 
-        
-
-        
-
-        // player.bullet.CheckBorderCollision();
-        
-        // IsCollision(player, dino);
-
-        // render after this
 
         RenderBackground1(renderer, stage);
 
@@ -223,7 +237,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         for(int i = 0; i < bullets.size(); i++) {
             if(bullets[i].isFiring) {
                 bullets[i].Move(event);
-                CheckBorderCollision(bullets[i], stage, boxes);
+                CheckBorderCollision(event, bullets[i], stage, boxes);
                 if(bullets[i].isFiring) {
                     SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &bullets[i].bullet);
                 }
@@ -231,19 +245,20 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         for(int i = 0; i < dinos.size(); i++) {
-            DinoFire(renderer, dinos[i], player);
+            DinoFire(event, renderer, dinos[i], player);
             if(dinos[i].bullet.isFiring) {
                 dinos[i].bullet.Move(event);
-                CheckBorderCollision(dinos[i].bullet, stage, boxes);
+                CheckBorderCollision(event, dinos[i].bullet, stage, boxes);
             }
         }
 
-        DinoMove(dinos, stage, player, boxes);
+        DinoMove(event, dinos, stage, player, boxes);
+        FirewMove(event, firews, stage, player, boxes);
         
 
         for(int i = 0; i < dinos.size(); i++) {
             for(int j = 0; j < bullets.size(); j++) {
-                IsCollision(bullets[j], dinos[i]);
+                IsCollision(event, bullets[j], dinos[i]);
             }
 
             if(dinos[i].bullet.isFiring) {
@@ -253,6 +268,14 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
             IsCollision(event, dinos[i].bullet, player);
         }
 
+        for(int i = 0; i < firews.size(); i++) {
+            for(int j = 0; j < bullets.size(); j++) {
+                IsCollision(event, bullets[j], firews[i]);
+            }
+
+            IsCollision(event, firews[i], player);
+        }
+
         
 
         
@@ -260,39 +283,48 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         
         
 
-
-        // render bullet
-        // if(player.bullet.isFiring) {
-        //     SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &player.bullet.bullet);
-        // }
 
         for(int i = 0; i < dinos.size(); i++) {
-            // cout << dino[i].hp << ' ' << dino[i].rect.x << ' ' << dino[i].rect.y << endl;
             RenderDino(renderer, dinos[i]);
+        }
+
+        for(int i = 0; i < firews.size(); i++) {
+            RenderFirew(renderer, firews[i]);
         }
 
         
         RenderPlayer(renderer, player);
 
+        for(int i = 0; i < firews.size(); i++) {
+            if(SDL_GetTicks64() <= firews[i].boomTime+2000) {
+                firews[i].boomRect.x = firews[i].rect.x;
+                firews[i].boomRect.y = firews[i].rect.y;
+                SDL_RenderCopy(renderer, firews[i].boomImg, NULL, &firews[i].boomRect);
+            }
+        }
         
         
         if(player.playerHP <= 0) {
+            player.imgRect.x = 41;
+            player.imgRect.y = 43;
+            player.imgRect.w = 14;
+            player.imgRect.h = 13;
+            player.player.w = 60;
+            player.player.h = 55;
+            event.isLose = true;
             SDL_ShowCursor(SDL_ENABLE);
-            event.CheckRetry();
             SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
+            SDL_RenderCopy(renderer, stage.loseImg, NULL, &stage.lose);
+            RenderDeadPlayer(renderer, player);
             if(event.isRetry) {
                 event.isRetry = false;
+                event.isLose = false;
                 event.mouseButtonLeftDown = false;
-                // dino.clear();
-                // bullets.clear();
-                // canMove.clear();
-                // boxes.clear();
-                // RenderStage(event, renderer, stage, to_string(event.curStage));
                 break;
             }
         }
         else {
-            if(CheckDinoDead(dinos)) {
+            if(CheckEnemiesDead(dinos, firews)) {
                 SDL_RenderCopy(renderer, stage.portalIMG, NULL, &stage.portal);
                 if(Collision(player.player, stage.portal)) {
                     event.curStage++;

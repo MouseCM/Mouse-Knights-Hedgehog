@@ -4,6 +4,8 @@ public:
     int rectW = 0;
     int rectH = 0;
     int hp = 100;
+    float deltaX;
+    float deltaY;
     SDL_Texture *rectImg = NULL;
     SDL_Rect rect = {0, 0, 0, 0};
     SDL_Rect hpRect = {0, 0, 0, 0};
@@ -13,6 +15,8 @@ public:
         rectImg = IMG_LoadTexture(renderer, "assets/dino.png");
         SDL_QueryTexture(rectImg, NULL, NULL, &rectW, &rectH);
         rect = {x, y, rectW*2, rectH*2};
+        deltaX = x;
+        deltaY = y;
         hpRect.h = 10;
     }
 

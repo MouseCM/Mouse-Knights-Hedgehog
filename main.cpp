@@ -14,7 +14,7 @@
 #include "event.h"
 #include "player.h"
 #include "enemies/dino.h"
-#include "enemies/fire.h"
+#include "enemies/firew.h"
 #include "stage.h"
 #include "helper_functions.h"
 #include "rendering_functions.h"
@@ -45,6 +45,9 @@ int run() {
         }
         else if(event.curStage == 2) {
             RenderStage(event, renderer, stage, "2");
+        }
+        else if(event.curStage == 3) {
+            RenderStage(event, renderer, stage, "3");
         }
         else if(event.curStage == END) {
             RenderEnd(event, renderer, stage);

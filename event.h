@@ -10,10 +10,6 @@ public:
     bool aDown = false;
     bool sDown = false;
     bool dDown = false;
-    bool upArrowDown = false;
-    bool downArrowDown = false;
-    bool leftArrowDown = false;
-    bool rightArrowDown = false;
     bool mouseButtonDown = false;
     bool mouseButtonLeftDown = false;
     bool isNewGame = false;
@@ -70,7 +66,33 @@ public:
                 appIsRunning = false;
             }
 
-            if(!isLose) {
+            if(isLose) {
+                wDown = false;
+                aDown = false;
+                sDown = false;
+                dDown = false;
+                mouseButtonDown = false;
+                mouseButtonLeftDown = false;
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    mouseButtonLeftDown = true;
+                }
+        
+                if (event.type == SDL_MOUSEBUTTONUP) {
+                    mouseButtonLeftDown = false;
+                }
+        
+                // cout << "SDfsdfsafda" << mouseButtonLeftDown << endl;
+                if(mouseButtonLeftDown) {
+                    int x;
+                    int y;
+                    SDL_GetMouseState(&x, &y);
+                    // cout << x << ' ' << y << endl;
+                    if(x >= 540 && x <= 735 && y >= 511 && y <= 605) {
+                        isRetry = true;
+                    }
+                }
+            }
+            else {
                 if (event.type == SDL_KEYDOWN) {
                     if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                         appIsRunning = false;
@@ -120,27 +142,6 @@ public:
         }
     }
 
-
-    void CheckRetry() {
-        if (event.button.button == SDL_BUTTON_LEFT) {
-            mouseButtonLeftDown = true;
-        }
-
-        if (event.type == SDL_MOUSEBUTTONUP) {
-            mouseButtonLeftDown = false;
-        }
-
-        // cout << "SDfsdfsafda" << mouseButtonLeftDown << endl;
-        if(mouseButtonLeftDown) {
-            int x;
-            int y;
-            SDL_GetMouseState(&x, &y);
-            // cout << x << ' ' << y << endl;
-            if(x >= 540 && x <= 735 && y >= 311 && y <= 405) {
-                isRetry = true;
-            }
-        }
-    }
 
     void CheckEnd() {
         while (SDL_PollEvent(&event)) {

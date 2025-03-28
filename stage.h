@@ -14,21 +14,12 @@ public:
     SDL_Rect end = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     SDL_Texture *endImg = NULL;
 
-    // SDL_Rect topBorder = {0, 0, STAGE_WIDTH, 25};
-    // SDL_Rect bottomBorder = {0, STAGE_HEIGHT - 25, STAGE_WIDTH, 25};
-    // SDL_Rect leftBorder = {0, 0, 25, STAGE_HEIGHT};
-    // SDL_Rect rightBorder = {STAGE_WIDTH - 25, 0, 25, STAGE_HEIGHT};
-
-    // SDL_Texture *borderTextureTop = NULL;
-    // SDL_Texture *borderTextureLeft = NULL;
-    // SDL_Texture *borderTextureRight = NULL;
-    // SDL_Texture *borderTextureBottom = NULL;
-
-
-    SDL_Rect retry = {STAGE_WIDTH/2-100, STAGE_HEIGHT/2-50, 200, 100};
+    SDL_Rect retry = {0, 0, 0, 0};
     SDL_Texture *retryImg = NULL;
 
-    SDL_Texture *box = NULL;
+    SDL_Rect lose = {0, 0, 0, 0};
+    SDL_Texture *loseImg = NULL;
+
 
     
 
@@ -37,6 +28,7 @@ public:
     }
 
     void SetPortal(SDL_Renderer *renderer) {
+        portal = {STAGE_WIDTH/2 -20 - INIT_X, STAGE_HEIGHT/2 - 40 - INIT_Y, 40, 80};
         portalIMG = IMG_LoadTexture(renderer, "assets/portal.png");
     }
 
@@ -48,15 +40,13 @@ public:
         const char* stage = temp.c_str();
         backgroundImg = IMG_LoadTexture(renderer, stage);
 
-        // borderTextureTop = IMG_LoadTexture(renderer, "assets/border/top.jpg");
-        // borderTextureLeft = IMG_LoadTexture(renderer, "assets/border/left.jpg");
-        // borderTextureRight = IMG_LoadTexture(renderer, "assets/border/right.jpg");
-        // borderTextureBottom = IMG_LoadTexture(renderer, "assets/border/bottom.jpg");
 
-        retry = {SCREEN_WIDTH/2-100, SCREEN_HEIGHT/2-50, 200, 100};
-        portal = {STAGE_WIDTH/2 -20 - INIT_X, STAGE_HEIGHT/2 - 40 - INIT_Y, 40, 80};
-
+        retry = {SCREEN_WIDTH/2-100, SCREEN_HEIGHT/2-50+200, 200, 100};
         retryImg = IMG_LoadTexture(renderer, "assets/retry.png");
+
+        lose = {SCREEN_WIDTH/2-138, SCREEN_HEIGHT/2-54-200, 276, 108};
+        loseImg = IMG_LoadTexture(renderer, "assets/lose.png");
+        
     }
 
     void SetEnd(SDL_Renderer *renderer) {

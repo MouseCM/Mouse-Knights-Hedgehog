@@ -49,6 +49,9 @@ int run() {
         else if(event.curStage == 3) {
             RenderStage(event, renderer, stage, "3");
         }
+        else if(event.curStage == 4) {
+            RenderStage(event, renderer, stage, "4");
+        }
         else if(event.curStage == END) {
             RenderEnd(event, renderer, stage);
         }

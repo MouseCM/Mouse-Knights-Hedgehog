@@ -4,19 +4,23 @@ public:
     int rectW = 0;
     int rectH = 0;
     int hp = 100;
+    int hurtTime = 0;
     float deltaX;
     float deltaY;
     SDL_Texture *rectImg = NULL;
+    SDL_Texture *rectImgHurt = NULL;
     SDL_Rect rect = {0, 0, 0, 0};
     SDL_Rect hpRect = {0, 0, 0, 0};
 
 
     void SetRect(SDL_Renderer *renderer, int x, int y) {
         rectImg = IMG_LoadTexture(renderer, "assets/dino.png");
+        rectImgHurt = IMG_LoadTexture(renderer, "assets/dinoHurt.png");
         SDL_QueryTexture(rectImg, NULL, NULL, &rectW, &rectH);
         rect = {x, y, rectW*2, rectH*2};
         deltaX = x;
         deltaY = y;
+        hurtTime = SDL_GetTicks64()-501;
         hpRect.h = 10;
     }
 
@@ -34,7 +38,7 @@ public:
         float angle = 0;
         float deltaX = 0;
         float deltaY = 0;
-        int reloadTime = SDL_GetTicks64();
+        int reloadTime = SDL_GetTicks64()+500;
         int damage = 10;
 
         void SetRect(SDL_Renderer *renderer) {

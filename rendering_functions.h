@@ -22,32 +22,45 @@ void RenderBackground1(SDL_Renderer *renderer, Stage &stage) {
     // SDL_DestroyTexture(borderTextureRight);
 }
 
-void RenderCustomDotCursor(SDL_Renderer* renderer) {
+void RenderCustomDotCursor(SDL_Renderer* renderer, Player &player) {
     // Get current mouse position
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     
     // Draw a dot at the mouse position
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White dot
+    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White dot
     
     // For a simple dot (3x3 pixels)
-    SDL_Rect dotRect = {mouseX - 1, mouseY - 1, 7, 7};
-    SDL_RenderFillRect(renderer, &dotRect);
+    SDL_Rect dotRect = {mouseX - 20, mouseY - 20, 40, 40};
+    // SDL_RenderFillRect(renderer, &dotRect);
+    SDL_RenderCopy(renderer, player.dot, NULL, &dotRect);
 }
 
 void RenderPlayer(SDL_Renderer *renderer, Player &player) {
     if(player.playerHP <= 0) return; 
-    player.playerHPRect.x = 30;
+    player.playerHPRect.x = 50;
     player.playerHPRect.y = 30;
-    player.playerHPRect.w = float(player.playerHP)/100 * player.player.w*5;
+    player.playerHPRect.w = float(player.playerHP)/100 * 200;
     player.playerHPRect.h = 20; 
 
-    SDL_Rect temp = {30, 30, player.player.w*5, 20};
+    SDL_Rect temp = {50, 30, 200, 20};
     SDL_SetRenderDrawColor(renderer, 200, 200, 200, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &temp);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &player.playerHPRect);
-    SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
+
+    temp = {50, 10, 60, 15};
+    SDL_RenderCopy(renderer, player.name, NULL, &temp);
+    temp = {5, 20, 40, 40};
+    SDL_RenderCopy(renderer, player.hp, NULL, &temp);
+    if(SDL_GetTicks64() <= player.hurtTime+200) {
+        SDL_RenderCopy(renderer, player.playerImgHurt, &player.imgRect, &player.player);
+    }
+    else {
+        SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
+    }
+    
+
 }
 
 void RenderDeadPlayer(SDL_Renderer *renderer, Player &player) {
@@ -76,7 +89,13 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &dino.hpRect);
 
-    SDL_RenderCopy(renderer, dino.rectImg, NULL, &dino.rect);
+    if(SDL_GetTicks64() <= dino.hurtTime+200) {
+        SDL_RenderCopy(renderer, dino.rectImgHurt, NULL, &dino.rect);
+    }
+    else {
+        SDL_RenderCopy(renderer, dino.rectImg, NULL, &dino.rect);
+    }
+    
 }
 
 void RenderFirew(SDL_Renderer *renderer, Firew &firew) {
@@ -101,10 +120,42 @@ void RenderFirew(SDL_Renderer *renderer, Firew &firew) {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &firew.hpRect);
 
-    SDL_RenderCopy(renderer, firew.rectImg, NULL, &firew.rect);
+    if(SDL_GetTicks64() <= firew.hurtTime+200) {
+        SDL_RenderCopy(renderer, firew.rectImgHurt, NULL, &firew.rect);
+    }
+    else {
+        SDL_RenderCopy(renderer, firew.rectImg, NULL, &firew.rect);
+    }
+    
 }
 
 
+void RenderPortal(SDL_Renderer *renderer, Stage &stage) {
+    if(SDL_GetTicks64() >= stage.animationPortalTime + 200) {
+        if(stage.animated == 0) {
+            stage.animationPortal.x = 15;
+            stage.animationPortal.y = 1;
+        }
+        else if(stage.animated == 1) {
+            stage.animationPortal.x = 264;
+            stage.animationPortal.y = 1;
+        }
+        else if(stage.animated == 2) {
+            stage.animationPortal.x = 510;
+            stage.animationPortal.y = 1;
+        }
+        else {
+            stage.animationPortal.x = 758;
+            stage.animationPortal.y = 1;
+        }
+        stage.animationPortalTime = SDL_GetTicks64();
+        stage.animated += 1;
+        stage.animated %= 4;
+    }
+
+    SDL_RenderCopy(renderer, stage.portalIMG, &stage.animationPortal, &stage.portal);
+    
+}
 
 
 
@@ -130,7 +181,6 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
             ifstream input("levels/current.txt");
             input >> event.curStage;
             input.close();
-            
         }
 
 
@@ -161,6 +211,9 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
     player.Setplayer(renderer);
     player.bullet.SetPlayerBullet(renderer);
     
+    ofstream output("levels/current.txt");
+    output << event.curStage;
+    output.close();
     
     string input = "levels/" + level + ".txt";
     ifstream file(input);
@@ -220,17 +273,16 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
 
     SDL_ShowCursor(SDL_DISABLE);
 
+    // cerr << firews.size() << endl << dinos.size() << endl << boxes.size() << endl;
+
     while(event.appIsRunning) {
-        // cout << stage.background.x << ' ' << stage.background.y << endl;
         event.CheckEvent();
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
         
         MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes, firews);
 
-
-
         RenderBackground1(renderer, stage);
-
-        
         
 
         Fire(renderer, event, player, bullets);
@@ -293,10 +345,10 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         
-        RenderPlayer(renderer, player);
+        
 
         for(int i = 0; i < firews.size(); i++) {
-            if(SDL_GetTicks64() <= firews[i].boomTime+2000) {
+            if(SDL_GetTicks64() <= firews[i].boomTime+1000) {
                 firews[i].boomRect.x = firews[i].rect.x;
                 firews[i].boomRect.y = firews[i].rect.y;
                 SDL_RenderCopy(renderer, firews[i].boomImg, NULL, &firews[i].boomRect);
@@ -310,7 +362,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
             player.imgRect.w = 14;
             player.imgRect.h = 13;
             player.player.w = 60;
-            player.player.h = 55;
+            player.player.h = 50;
             event.isLose = true;
             SDL_ShowCursor(SDL_ENABLE);
             SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
@@ -325,19 +377,16 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
         else {
             if(CheckEnemiesDead(dinos, firews)) {
-                SDL_RenderCopy(renderer, stage.portalIMG, NULL, &stage.portal);
-                if(Collision(player.player, stage.portal)) {
+                RenderPortal(renderer, stage);
+                if(Collision(player.player, stage.portal) && event.returnDown) {
                     event.curStage++;
-                    ofstream output("levels/current.txt");
-                    output << event.curStage;
-                    output.close();
                     break;
                 }
             }
-            RenderCustomDotCursor(renderer);
+            RenderCustomDotCursor(renderer, player);
         }
 
-        
+        RenderPlayer(renderer, player);
 
         
         SDL_RenderPresent(renderer);

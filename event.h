@@ -10,6 +10,7 @@ public:
     bool aDown = false;
     bool sDown = false;
     bool dDown = false;
+    bool returnDown = false;
     bool mouseButtonDown = false;
     bool mouseButtonLeftDown = false;
     bool isNewGame = false;
@@ -29,10 +30,6 @@ public:
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 appIsRunning = false;
-            }
-
-            if (event.key.keysym.scancode == SDL_SCANCODE_D) {
-                dDown = true;
             }
 
             if (event.button.button == SDL_BUTTON_LEFT) {
@@ -97,6 +94,9 @@ public:
                     if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                         appIsRunning = false;
                     }
+                    if(event.key.keysym.sym == SDLK_RETURN) {
+                        returnDown = true;
+                    }
                     if (event.key.keysym.scancode == SDL_SCANCODE_W) {
                         wDown = true;
                     }
@@ -127,7 +127,9 @@ public:
                     else if (event.key.keysym.scancode == SDL_SCANCODE_D) {
                         dDown = false;
                     }
-
+                    else if(event.key.keysym.sym == SDLK_RETURN) {
+                        returnDown = false;
+                    }
                 }
 
                 

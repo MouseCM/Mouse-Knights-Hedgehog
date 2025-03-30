@@ -8,6 +8,9 @@ public:
     SDL_Rect background = {0, 0, 2560, 1440};
     SDL_Texture *backgroundImg = NULL;
 
+    int animated = 0;
+    int animationPortalTime = SDL_GetTicks64()-200;
+    SDL_Rect animationPortal = {0, 0, 242, 484};
     SDL_Rect portal = {STAGE_WIDTH/2 -20, STAGE_HEIGHT/2 - 40, 40, 80};
     SDL_Texture *portalIMG = NULL;
 
@@ -28,8 +31,10 @@ public:
     }
 
     void SetPortal(SDL_Renderer *renderer) {
-        portal = {STAGE_WIDTH/2 -20 - INIT_X, STAGE_HEIGHT/2 - 40 - INIT_Y, 40, 80};
+        animationPortal = {15, 1, 242, 490};
+        portal = {STAGE_WIDTH/2 -30 - INIT_X, STAGE_HEIGHT/2 - 60 - INIT_Y, 60, 120};
         portalIMG = IMG_LoadTexture(renderer, "assets/portal.png");
+        animationPortalTime = SDL_GetTicks64()-200;
     }
 
     void SetStage(SDL_Renderer *renderer, string curStage) {

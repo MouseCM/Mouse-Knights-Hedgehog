@@ -11,14 +11,25 @@ public:
     int playerHP = 100;
     SDL_Rect playerHPRect = {0, 0, 0, 0};
     SDL_Texture *playerImg = NULL;
+    SDL_Texture *playerImgHurt = NULL;
+    SDL_Texture *dot = NULL;
+    SDL_Texture *hp = NULL;
+    SDL_Texture *name = NULL;
+    int hurtTime = SDL_GetTicks64()-200;
     
     
     void Setplayer(SDL_Renderer *renderer) {
         playerImg = IMG_LoadTexture(renderer, "assets/mouse.png");
-	    // SDL_QueryTexture(playerImg, NULL, NULL, &playerW, &playerH);
-        imgRect = {18, 17, 13, 15};
+        playerImgHurt = IMG_LoadTexture(renderer, "assets/mouseHurt.png");
+        dot = IMG_LoadTexture(renderer, "assets/dot.png");
+        hp = IMG_LoadTexture(renderer, "assets/hp.png");
+        name = IMG_LoadTexture(renderer, "assets/name.png");
+	    SDL_QueryTexture(playerImg, NULL, NULL, &playerW, &playerH);
+        imgRect = {17, 17, 14, 15};
         player.w = 50;
-        player.h = 66;
+        player.h = 60;
+        // player.w = playerW*1.5;
+        // player.h = playerH*1.5;
         player = {SCREEN_WIDTH/2-player.w/2, SCREEN_HEIGHT/2-player.h/2, player.w, player.h};
     }
 

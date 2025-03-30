@@ -78,6 +78,11 @@ void DinoFire(Event event, SDL_Renderer *renderer, Dino &dino, Player &player) {
     }
 }
 
+void ScreenVibrate(Stage stage) {
+
+}
+
+
 bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
     // if(event.isLose) return false;
     if (rect1.x + rect1.w >= rect2.x && rect1.x <= rect2.x + rect2.w) {
@@ -147,6 +152,7 @@ void IsCollision(Event event, Player::Bullet &bullet, Dino &dino) {
         if(Collision(bullet.bullet, dino.rect)) {
             dino.hp -= bullet.damage;
             bullet.isFiring = false;
+            dino.hurtTime = SDL_GetTicks64();
         }
     } 
 }
@@ -162,6 +168,7 @@ void IsCollision(Event event, Player::Bullet &bullet, Firew &firew) {
         if(Collision(bullet.bullet, firew.rect)) {
             firew.hp -= bullet.damage;
             bullet.isFiring = false;
+            firew.hurtTime = SDL_GetTicks64();
         }
     } 
 }
@@ -177,6 +184,7 @@ void IsCollision(Event event, Dino::Bullet &bullet, Player &player) {
     if(bullet.isFiring) {
         if(Collision(bullet.rect, player.player)) {
             player.playerHP -= bullet.damage;
+            player.hurtTime = SDL_GetTicks64();
             bullet.isFiring = false;
         }
     }
@@ -193,6 +201,7 @@ void IsCollision(Event event, Firew &firew, Player &player) {
 
     if(Collision(firew.rect, player.player)) {
         player.playerHP = max(0, player.playerHP-firew.damage);
+        player.hurtTime = SDL_GetTicks64();
         firew.hp = 0;
         firew.boomTime = SDL_GetTicks64();
     }
@@ -307,12 +316,13 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
 
     if (event.wDown) {
         int add = 5;
-        player.imgRect.x = 18;
+        player.imgRect.x = 17;
         player.imgRect.y = 65;
 
         while(stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-add < UP) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-add-UP]) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-add-UP]) add--;
+        
 
         stage.camera.y -= add;
         stage.background.y = -stage.camera.y;
@@ -323,17 +333,17 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             dinos[i].bullet.deltaY += add;
         }
         for(int i = 0; i < bullets.size(); i++) {
+            bullets[i].deltaY += add;
             bullets[i].bullet.y += add;
         }
         for(int i = 0; i < firews.size(); i++) {
             firews[i].deltaY += add;
             firews[i].rect.y += add;
         }
-        
     }
     if (event.aDown) {
         int add = 5;
-        player.imgRect.x = 114;
+        player.imgRect.x = 113;
         player.imgRect.y = 17;
 
         while(stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-add < LEFT) add--;
@@ -348,6 +358,7 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             dinos[i].bullet.deltaX += add;
         }
         for(int i = 0; i < bullets.size(); i++) {
+            bullets[i].deltaX += add;
             bullets[i].bullet.x += add;
         }
         for(int i = 0; i < firews.size(); i++) {
@@ -357,7 +368,7 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
     }
     if (event.sDown) {
         int add = 5;
-        player.imgRect.x = 18;
+        player.imgRect.x = 17;
         player.imgRect.y = 17;
 
         while(stage.camera.y+SCREEN_HEIGHT/2+player.player.h/2+add > DOWN) add--;
@@ -373,7 +384,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             dinos[i].bullet.deltaY -= add;
         }
         for(int i = 0; i < bullets.size(); i++) {
-            bullets[i].bullet.y -= add;
+            bullets[i].deltaY -= add;
+            bullets[i].bullet.x -= add;
         }
         for(int i = 0; i < firews.size(); i++) {
             firews[i].deltaY -= add;
@@ -383,11 +395,13 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
     }
     if (event.dDown) {
         int add = 5;
-        player.imgRect.x = 162;
+        player.imgRect.x = 161;
         player.imgRect.y = 17;
 
         while(stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add > RIGHT) add--;
-        while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add-LEFT][stage.camera.y+SCREEN_HEIGHT/2-UP]) add--;
+        while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add-LEFT][stage.camera.y+player.player.h/2+SCREEN_HEIGHT/2-UP]) add--;
+        while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add-LEFT][stage.camera.y-player.player.h/2+SCREEN_HEIGHT/2-UP]) add--;
+        // while(!canMove[stage.camera.x])
         stage.camera.x += add;
         stage.background.x = -stage.camera.x;
         stage.portal.x -= add;
@@ -399,6 +413,7 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         }
 
         for(int i = 0; i < bullets.size(); i++) {
+            bullets[i].deltaX -= add;
             bullets[i].bullet.x -= add;
         }
         for(int i = 0; i < firews.size(); i++) {

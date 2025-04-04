@@ -8,6 +8,7 @@
 
 
 #include "constants.h"
+#include "audio.h"
 #include "event.h"
 #include "player.h"
 #include "enemies/dino.h"
@@ -33,11 +34,9 @@ int run() {
     Stage stage;
 
 
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-    Mix_Music *music = NULL;
-    music = Mix_LoadMUS("audio/theme.mp3");
-    Mix_Volume(1, MIX_MAX_VOLUME);
-    Mix_PlayMusic(music, -1);
+    Audio audio;
+    audio.LoadAudio();
+    audio.Theme();
 
 
     while(event.appIsRunning) {
@@ -45,22 +44,22 @@ int run() {
             RenderHome(event, renderer, stage);
         }
         else if(event.curStage == 1) {
-            RenderStage(event, renderer, stage, "1");
+            RenderStage(event, renderer, stage, audio, "1");
         }
         else if(event.curStage == 2) {
-            RenderStage(event, renderer, stage, "2");
+            RenderStage(event, renderer, stage, audio, "2");
         }
         else if(event.curStage == 3) {
-            RenderStage(event, renderer, stage, "3");
+            RenderStage(event, renderer, stage, audio, "3");
         }
         else if(event.curStage == 4) {
-            RenderStage(event, renderer, stage, "4");
+            RenderStage(event, renderer, stage, audio, "4");
         }
         else if(event.curStage == 5) {
-            RenderStage(event, renderer, stage, "5");
+            RenderStage(event, renderer, stage, audio, "5");
         }
         else if(event.curStage == 6) {
-            RenderStage(event, renderer, stage, "6");
+            RenderStage(event, renderer, stage, audio, "6");
         }
         else if(event.curStage == END) {
             RenderEnd(event, renderer, stage);

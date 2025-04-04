@@ -98,12 +98,16 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     
 }
 
-void RenderFirew(SDL_Renderer *renderer, Firew &firew) {
+void RenderFirew(SDL_Renderer *renderer, Audio &audio, Firew &firew) {
     if (firew.hp <= 0) {
+        if(SDL_GetTicks64() <= firew.boomTime+100) {
+            audio.FirewExplosion();
+        }
         if(SDL_GetTicks64() <= firew.boomTime+1000) {
             firew.boomRect.x = firew.rect.x;
             firew.boomRect.y = firew.rect.y;
             SDL_RenderCopy(renderer, firew.boomImg, NULL, &firew.boomRect);
+            
         }
         return;
     }
@@ -202,7 +206,7 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
 
 
-void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string level) {
+void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audio, string level) {
     Player player;
     Hedgehog hedgehog;
     vector<vector<bool>> canMove(RIGHT-LEFT+1, vector<bool>(DOWN-UP+1, 1));
@@ -291,12 +295,12 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
-        MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog);
+        MoveCamera(renderer, event, audio, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog);
 
         RenderBackground1(renderer, stage);
         
 
-        Fire(renderer, event, player, bullets);
+        Fire(renderer, event, audio, player, bullets);
         for(int i = 0; i < bullets.size(); i++) {
             if(bullets[i].isFiring) {
                 bullets[i].Move(event);
@@ -308,7 +312,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         for(int i = 0; i < dinos.size(); i++) {
-            DinoFire(event, renderer, dinos[i], player);
+            DinoFire(event, renderer, audio, dinos[i], player);
             if(dinos[i].bullet.isFiring) {
                 dinos[i].bullet.Move(event);
                 CheckBorderCollision(event, dinos[i].bullet, stage, boxes);
@@ -352,7 +356,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         }
 
         for(int i = 0; i < firews.size(); i++) {
-            RenderFirew(renderer, firews[i]);
+            RenderFirew(renderer, audio, firews[i]);
         }
 
         if(num == 1) {

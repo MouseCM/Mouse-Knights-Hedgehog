@@ -40,10 +40,11 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     cout << "Setup successfully";
 }
 
-void Fire(SDL_Renderer *renderer, Event &event, Player &player, vector<Player::Bullet> &bullets) {
+void Fire(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, vector<Player::Bullet> &bullets) {
     if(event.isLose) return;
     if (event.mouseButtonLeftDown) {
         if(SDL_GetTicks64() >= player.bullet.reloadTime && player.playerHP > 0) {
+            audio.PlayerFire();
             Player::Bullet bullet;
             bullet.SetPlayerBullet(renderer);
             SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
@@ -56,30 +57,24 @@ void Fire(SDL_Renderer *renderer, Event &event, Player &player, vector<Player::B
             bullet.isFiring = true;
             bullets.push_back(bullet);
             player.bullet.reloadTime = SDL_GetTicks64() + 500;
+            
         }
     }
 }
 
-void DinoFire(Event event, SDL_Renderer *renderer, Dino &dino, Player &player) {
+void DinoFire(Event event, SDL_Renderer *renderer, Audio &audio, Dino &dino, Player &player) {
     if(event.isLose) return;
     if(SDL_GetTicks64() >= dino.bullet.reloadTime && dino.hp > 0) {
-        // cout << '1' << endl;
-        // dino.bullet.SetRect(renderer);
-        // SDL_GetMouseState(&bullet.aimX, &bullet.aimY);
+        audio.DinoFire();
 
         dino.bullet.deltaX = player.player.x+player.player.w/2 - (dino.rect.x + dino.rect.w/2);
         dino.bullet.deltaY = player.player.y+player.player.h/2 - (dino.rect.y + dino.rect.h/2);
         dino.bullet.angle = atan2(dino.bullet.deltaY, dino.bullet.deltaX);
         dino.bullet.deltaX = dino.rect.x + dino.rect.w/2 - dino.bullet.rect.w/2;
         dino.bullet.deltaY = dino.rect.y + dino.rect.h/2 - dino.bullet.rect.h/2;
-        // bullet.existTime = SDL_GetTicks64() + 1000;
         dino.bullet.isFiring = true;
         dino.bullet.reloadTime = SDL_GetTicks64() + 3000;
     }
-}
-
-void ScreenVibrate(Stage stage) {
-
 }
 
 
@@ -313,10 +308,16 @@ void FirewMove(Event event, vector<Firew> &firews, Stage stage, Player player, v
 
 
 
-void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &stage, vector<Dino> &dinos, vector<Player::Bullet> &bullets, vector<vector<bool>> &canMove, vector<SDL_Rect> &boxes, vector<Firew> &firews, Hedgehog &hedgehog) {
-    if(event.isLose) return;
+void MoveCamera(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, Stage &stage, vector<Dino> &dinos, vector<Player::Bullet> &bullets, vector<vector<bool>> &canMove, vector<SDL_Rect> &boxes, vector<Firew> &firews, Hedgehog &hedgehog) {
+    if(event.isLose) {
+        audio.EndRun();
+        return;
+    }
+    bool isMoved = false;
 
     if (event.wDown) {
+        isMoved = true;
+
         int add = 5;
         player.imgRect.x = 17;
         player.imgRect.y = 65;
@@ -325,7 +326,11 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-add-UP]) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-add-UP]) add--;
         
-
+        if(add > 0) {
+            if(!audio.CheckPlayingChannel1()) {
+                audio.Run();
+            }
+        }
         stage.camera.y -= add;
         stage.background.y = -stage.camera.y;
         stage.portal.y += add;
@@ -345,7 +350,10 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
 
         hedgehog.rect.y += add;
     }
+
     if (event.aDown) {
+        isMoved = true;
+
         int add = 5;
         player.imgRect.x = 113;
         player.imgRect.y = 17;
@@ -353,6 +361,12 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         while(stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-add < LEFT) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-add-LEFT][stage.camera.y+SCREEN_HEIGHT/2+player.player.h/2-UP])add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-add-LEFT][stage.camera.y+SCREEN_HEIGHT/2-player.player.h/2-UP])add--;
+
+        if(add > 0) {
+            if(!audio.CheckPlayingChannel1()) {
+                audio.Run();
+            }
+        } 
         stage.camera.x -= add;
         stage.background.x = -stage.camera.x;
         stage.portal.x += add;
@@ -373,6 +387,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         hedgehog.rect.x += add;
     }
     if (event.sDown) {
+        isMoved = true;
+
         int add = 5;
         player.imgRect.x = 17;
         player.imgRect.y = 17;
@@ -381,6 +397,11 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2+player.player.h/2+add-UP]) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2-player.player.w/2-LEFT][stage.camera.y+SCREEN_HEIGHT/2+player.player.h/2+add-UP]) add--;
 
+        if(add > 0) {
+            if(!audio.CheckPlayingChannel1()) {
+                audio.Run();
+            }
+        }
         stage.camera.y += add;
         stage.background.y = -stage.camera.y;
         stage.portal.y -= add;
@@ -402,6 +423,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         
     }
     if (event.dDown) {
+        isMoved = true;
+
         int add = 5;
         player.imgRect.x = 161;
         player.imgRect.y = 17;
@@ -409,7 +432,12 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         while(stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add > RIGHT) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add-LEFT][stage.camera.y+player.player.h/2+SCREEN_HEIGHT/2-UP]) add--;
         while(!canMove[stage.camera.x+SCREEN_WIDTH/2+player.player.w/2+add-LEFT][stage.camera.y-player.player.h/2+SCREEN_HEIGHT/2-UP]) add--;
-        // while(!canMove[stage.camera.x])
+        
+        if(add > 0) {
+            if(!audio.CheckPlayingChannel1()) {
+                audio.Run();
+            }
+        }
         stage.camera.x += add;
         stage.background.x = -stage.camera.x;
         stage.portal.x -= add;
@@ -432,4 +460,7 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
         hedgehog.rect.x -= add;
     }
 
+    if(!isMoved) {
+        audio.EndRun();
+    }
 }

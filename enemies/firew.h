@@ -4,7 +4,7 @@ public:
     int rectH = 0;
     int hp = 100;
     int damage = 60;
-    int boomTime = SDL_GetTicks64()-2000;
+    int boomTime = SDL_GetTicks64()-1000;
     int hurtTime = SDL_GetTicks64()-200;
     float deltaX;
     float deltaY;
@@ -28,7 +28,4 @@ public:
         deltaY = y;
         hpRect.h = 10;
     }
-
-    
-
 };

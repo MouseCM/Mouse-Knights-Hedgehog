@@ -100,6 +100,11 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
 
 void RenderFirew(SDL_Renderer *renderer, Firew &firew) {
     if (firew.hp <= 0) {
+        if(SDL_GetTicks64() <= firew.boomTime+1000) {
+            firew.boomRect.x = firew.rect.x;
+            firew.boomRect.y = firew.rect.y;
+            SDL_RenderCopy(renderer, firew.boomImg, NULL, &firew.boomRect);
+        }
         return;
     }
 
@@ -199,6 +204,7 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
 void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string level) {
     Player player;
+    Hedgehog hedgehog;
     vector<vector<bool>> canMove(RIGHT-LEFT+1, vector<bool>(DOWN-UP+1, 1));
     vector<Dino> dinos;
     vector<Player::Bullet> bullets;
@@ -262,6 +268,11 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         firews.push_back(temp);
     }
 
+    file >> num;
+
+    if(num == 1) {
+        hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
+    }
 
     file.close();
 
@@ -280,7 +291,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
-        MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes, firews);
+        MoveCamera(renderer, event, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog);
 
         RenderBackground1(renderer, stage);
         
@@ -344,15 +355,8 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
             RenderFirew(renderer, firews[i]);
         }
 
-        
-        
-
-        for(int i = 0; i < firews.size(); i++) {
-            if(SDL_GetTicks64() <= firews[i].boomTime+1000) {
-                firews[i].boomRect.x = firews[i].rect.x;
-                firews[i].boomRect.y = firews[i].rect.y;
-                SDL_RenderCopy(renderer, firews[i].boomImg, NULL, &firews[i].boomRect);
-            }
+        if(num == 1) {
+            SDL_RenderCopy(renderer, hedgehog.rectImg, NULL, &hedgehog.rect);
         }
         
         
@@ -376,7 +380,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
             }
         }
         else {
-            if(CheckEnemiesDead(dinos, firews)) {
+            if(CheckEnemiesDead(dinos, firews, num)) {
                 RenderPortal(renderer, stage);
                 if(Collision(player.player, stage.portal) && event.returnDown) {
                     event.curStage++;
@@ -398,6 +402,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, string leve
     boxes.clear();
     dinos.clear();
 }
+
 
 
 

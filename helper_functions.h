@@ -207,7 +207,7 @@ void IsCollision(Event event, Firew &firew, Player &player) {
     }
 }
 
-bool CheckEnemiesDead(vector<Dino> dinos, vector<Firew> firews) {
+bool CheckEnemiesDead(vector<Dino> dinos, vector<Firew> firews, int num) {
     // if(event.isLose) return;
     for(int i = 0; i < dinos.size(); i++) {
         if(dinos[i].hp > 0) return false;
@@ -216,6 +216,8 @@ bool CheckEnemiesDead(vector<Dino> dinos, vector<Firew> firews) {
     for(int i = 0; i < firews.size(); i++) {
         if(firews[i].hp > 0) return false;
     }
+
+    if(num == 1) return false;
 
     return true;
 }
@@ -311,7 +313,7 @@ void FirewMove(Event event, vector<Firew> &firews, Stage stage, Player player, v
 
 
 
-void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &stage, vector<Dino> &dinos, vector<Player::Bullet> &bullets, vector<vector<bool>> &canMove, vector<SDL_Rect> &boxes, vector<Firew> &firews) {
+void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &stage, vector<Dino> &dinos, vector<Player::Bullet> &bullets, vector<vector<bool>> &canMove, vector<SDL_Rect> &boxes, vector<Firew> &firews, Hedgehog &hedgehog) {
     if(event.isLose) return;
 
     if (event.wDown) {
@@ -340,6 +342,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             firews[i].deltaY += add;
             firews[i].rect.y += add;
         }
+
+        hedgehog.rect.y += add;
     }
     if (event.aDown) {
         int add = 5;
@@ -365,6 +369,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             firews[i].deltaX += add;
             firews[i].rect.x += add;
         }
+
+        hedgehog.rect.x += add;
     }
     if (event.sDown) {
         int add = 5;
@@ -391,6 +397,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             firews[i].deltaY -= add;
             firews[i].rect.y -= add;
         }
+
+        hedgehog.rect.y -= add;
         
     }
     if (event.dDown) {
@@ -420,6 +428,8 @@ void MoveCamera(SDL_Renderer *renderer, Event &event, Player &player, Stage &sta
             firews[i].deltaX -= add;
             firews[i].rect.x -= add;
         }
+
+        hedgehog.rect.x -= add;
     }
 
 }

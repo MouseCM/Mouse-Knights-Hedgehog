@@ -286,6 +286,9 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         }
         hedgehog.bullet.SetRect(renderer);
     }
+    else {
+        hedgehog.hp = 0;
+    }
 
     vector<Hedgehog::Bullet> hedgehogBullets(8);
     for(int i = 0; i < hedgehogBullets.size(); i++) {

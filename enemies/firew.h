@@ -1,7 +1,5 @@
 class Firew {
 public:
-    int rectW = 0;
-    int rectH = 0;
     int hp = 100;
     int damage = 60;
     int boomTime = SDL_GetTicks64()-1000;
@@ -21,8 +19,8 @@ public:
         rectImg = IMG_LoadTexture(renderer, "assets/firew.png");
         rectImgHurt = IMG_LoadTexture(renderer, "assets/firewHurt.png");
         boomImg = IMG_LoadTexture(renderer, "assets/boom.png");
-        SDL_QueryTexture(rectImg, NULL, NULL, &rectW, &rectH);
-        rect = {x, y, rectW*15/10, rectH*15/10}; 
+        SDL_QueryTexture(rectImg, NULL, NULL, &rect.w, &rect.h);
+        rect = {x, y, rect.w*15/10, rect.h*15/10}; 
         boomRect = rect;        
         deltaX = x;
         deltaY = y;

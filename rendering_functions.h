@@ -5,34 +5,16 @@ void RenderHitboxes(SDL_Renderer *renderer, SDL_Rect rect) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void RenderBackground1(SDL_Renderer *renderer, Stage &stage) {
-    // SDL_Rect srcRect = {0, 0, 100, 100};
+void RenderBackground(SDL_Renderer *renderer, Stage &stage) {
     SDL_RenderCopy(renderer, stage.backgroundImg, NULL, &stage.background);
-    // SDL_DestroyTexture(backgroundImg);
-
-
-
-    // SDL_RenderCopy(renderer, stage.borderTextureTop, NULL, &stage.topBorder);
-    // SDL_RenderCopy(renderer, stage.borderTextureBottom, NULL, &stage.bottomBorder);
-    // SDL_RenderCopy(renderer, stage.borderTextureLeft, NULL, &stage.leftBorder);
-    // SDL_RenderCopy(renderer, stage.borderTextureRight, NULL, &stage.rightBorder);
-    // SDL_DestroyTexture(borderTextureTop);
-    // SDL_DestroyTexture(borderTextureBottom);
-    // SDL_DestroyTexture(borderTextureLeft);
-    // SDL_DestroyTexture(borderTextureRight);
 }
 
 void RenderCustomDotCursor(SDL_Renderer* renderer, Player &player) {
-    // Get current mouse position
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     
-    // Draw a dot at the mouse position
-    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White dot
-    
-    // For a simple dot (3x3 pixels)
     SDL_Rect dotRect = {mouseX - 20, mouseY - 20, 40, 40};
-    // SDL_RenderFillRect(renderer, &dotRect);
+
     SDL_RenderCopy(renderer, player.dot, NULL, &dotRect);
 }
 
@@ -63,6 +45,42 @@ void RenderPlayer(SDL_Renderer *renderer, Player &player) {
 
 }
 
+void RenderHedgehog(SDL_Renderer *renderer, Hedgehog &hedgehog, vector<Hedgehog::Gun> &guns) {
+    if (hedgehog.hp <= 0) {
+        return;
+    }
+
+
+    if(SDL_GetTicks64() <= hedgehog.hurtTime+200) {
+        SDL_RenderCopy(renderer, hedgehog.rectImgHurt, NULL, &hedgehog.rect);
+    }
+    else {
+        SDL_RenderCopy(renderer, hedgehog.rectImg, NULL, &hedgehog.rect);
+    }
+
+    for(int i = 0 ;i < guns.size(); i++) {
+        if(SDL_GetTicks64() <= guns[i].hurtTime+200) {
+            SDL_RenderCopy(renderer, guns[i].rectImgHurt, NULL, &guns[i].rect);
+        }
+        else {
+            SDL_RenderCopy(renderer, guns[i].rectImg, NULL, &guns[i].rect);
+        }
+
+        if(guns[i].bullet.isFiring) {
+            SDL_RenderCopy(renderer, guns[i].bullet.rectImg, NULL, &guns[i].bullet.rect);
+        }
+    }
+
+    hedgehog.hpRect.w = float(hedgehog.hp)/1000 * 600;
+
+    SDL_Rect temp = {SCREEN_WIDTH/2-300, 30, 600, 20};
+    SDL_SetRenderDrawColor(renderer, 150, 150, 150, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &temp);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &hedgehog.hpRect);
+
+}
+
 void RenderDeadPlayer(SDL_Renderer *renderer, Player &player) {
     SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
 }
@@ -71,13 +89,6 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     if (dino.hp <= 0) {
         return;
     }
-
-    // dino.dinoBullet.x += 1;
-    // dino.dinoBullet.y += 1;
-    // if (dino.isFiring && dino.dinoBulletNum >= 1) {
-    //     SDL_RenderCopy(renderer, dino.dinoBulletImg, NULL, &dino.dinoBullet);
-    //     // cout << dino.dinoBullet.x << " " << dino.dinoBullet.y << endl;
-    // }
 
     dino.hpRect.x = dino.rect.x;
     dino.hpRect.y = dino.rect.y-25;
@@ -112,18 +123,11 @@ void RenderFirew(SDL_Renderer *renderer, Audio &audio, Firew &firew) {
         return;
     }
 
-    // dino.dinoBullet.x += 1;
-    // dino.dinoBullet.y += 1;
-    // if (dino.isFiring && dino.dinoBulletNum >= 1) {
-    //     SDL_RenderCopy(renderer, dino.dinoBulletImg, NULL, &dino.dinoBullet);
-    //     // cout << dino.dinoBullet.x << " " << dino.dinoBullet.y << endl;
-    // }
-
     firew.hpRect.x = firew.rect.x;
     firew.hpRect.y = firew.rect.y-25;
     firew.hpRect.w = float(firew.hp)/100 * firew.rect.w;
     
-    SDL_Rect temp = {firew.rect.x, firew.rect.y-25, firew.rect.h, 10};
+    SDL_Rect temp = {firew.rect.x, firew.rect.y-25, firew.rect.w, 10};
     SDL_SetRenderDrawColor(renderer, 150, 150, 150, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &temp);
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
@@ -213,7 +217,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
     vector<Dino> dinos;
     vector<Player::Bullet> bullets;
     vector<Firew> firews;
-
+    int curBullet = 0;
 
 
     stage.SetStage(renderer, level);
@@ -248,7 +252,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
     vector<SDL_Rect> boxes;
     file >> num;
-    // cout << num << endl;
+
     for(int i = 0; i < num; i++) {
         SDL_Rect temp;
         file >> temp.x >> temp.y >> temp.w >> temp.h;
@@ -276,28 +280,44 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
     if(num == 1) {
         hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
+        for(int i = 0; i < 4; i++) {
+            firews[i].hp = 0;
+            dinos[i].hp = 0;
+        }
+        hedgehog.bullet.SetRect(renderer);
     }
+
+    vector<Hedgehog::Bullet> hedgehogBullets(8);
+    for(int i = 0; i < hedgehogBullets.size(); i++) {
+        hedgehogBullets[i].SetRect(renderer);
+    }
+
+    vector<Hedgehog::Gun> guns(4);
+    
+    for(int i = 0; i < guns.size(); i++) {
+        guns[i].SetRect(renderer, 0, 0);
+        guns[i].bullet.SetRect(renderer);
+    }
+    guns[0].SetRect(renderer, LEFT-INIT_X, UP-INIT_Y);
+    guns[1].SetRect(renderer, LEFT-INIT_X, DOWN-INIT_Y-guns[1].rect.h);
+    guns[2].SetRect(renderer, RIGHT-INIT_X-guns[2].rect.w, UP-INIT_Y);
+    guns[3].SetRect(renderer, RIGHT-INIT_X-guns[3].rect.w, DOWN-INIT_Y-guns[2].rect.h);
 
     file.close();
 
 
-
     stage.SetPortal(renderer);
-    // cout << player.player.w << ' ' << player.player.h << endl;
-    // player.playerHP = 20;
 
     SDL_ShowCursor(SDL_DISABLE);
-
-    // cerr << firews.size() << endl << dinos.size() << endl << boxes.size() << endl;
 
     while(event.appIsRunning) {
         event.CheckEvent();
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
-        MoveCamera(renderer, event, audio, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog);
+        MoveCamera(renderer, event, audio, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog, hedgehogBullets, guns, num);
 
-        RenderBackground1(renderer, stage);
+        RenderBackground(renderer, stage);
         
 
         Fire(renderer, event, audio, player, bullets);
@@ -319,36 +339,31 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             }
         }
 
+
         DinoMove(event, dinos, stage, player, boxes);
+
         FirewMove(event, firews, stage, player, boxes);
         
 
         for(int i = 0; i < dinos.size(); i++) {
             for(int j = 0; j < bullets.size(); j++) {
-                IsCollision(event, bullets[j], dinos[i]);
+                CheckCollision(event, bullets[j], dinos[i]);
             }
 
             if(dinos[i].bullet.isFiring) {
                 SDL_RenderCopy(renderer, dinos[i].bullet.rectImg, NULL, &dinos[i].bullet.rect);
             }
 
-            IsCollision(event, dinos[i].bullet, player);
+            CheckCollision(event, dinos[i].bullet, player);
         }
 
         for(int i = 0; i < firews.size(); i++) {
             for(int j = 0; j < bullets.size(); j++) {
-                IsCollision(event, bullets[j], firews[i]);
+                CheckCollision(event, bullets[j], firews[i]);
             }
 
-            IsCollision(event, firews[i], player);
+            CheckCollision(event, firews[i], player);
         }
-
-        
-
-        
-        
-        
-        
 
 
         for(int i = 0; i < dinos.size(); i++) {
@@ -359,11 +374,101 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             RenderFirew(renderer, audio, firews[i]);
         }
 
-        if(num == 1) {
-            SDL_RenderCopy(renderer, hedgehog.rectImg, NULL, &hedgehog.rect);
+
+        // BOSS
+        if(num == 1 && hedgehog.hp > 0) {
+            for(int i = 0; i < bullets.size(); i++) {
+                CheckCollision(event, bullets[i], hedgehog, guns);
+            }
+
+            for(int i = 0; i < guns.size(); i++) {
+                for(int j = 0; j < bullets.size(); j++) {
+                    CheckCollision(event, bullets[j], guns[i], guns, hedgehog);
+                }
+                
+                GunFire(event, renderer, audio, guns[i], player);
+                if(guns[i].bullet.isFiring) {
+                    guns[i].bullet.Move();
+                    CheckBorderCollision(event, guns[i].bullet, stage);
+                    CheckCollision(event, guns[i].bullet, player);
+                }
+            }
+
+
+            SpawnFirew(hedgehog, firews, stage);
+
+
+            // skill 1
+            if(curBullet < hedgehogBullets.size()-1) {
+                if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
+                    HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[curBullet], player);
+                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+200;
+                    curBullet++;
+                }
+            }
+            else {
+                if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
+                    HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[curBullet], player);
+                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+7800;
+                    curBullet = 0;
+                }
+            }
+
+
+            // skill 2
+            if(SDL_GetTicks64() >= hedgehog.bullet.skill2ReloadTime) {
+                for(int i = 0; i < hedgehogBullets.size(); i++) {
+                    if(!hedgehogBullets[i].isFiring) {
+                        HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[i], player);
+                        hedgehog.bullet.skill2ReloadTime = SDL_GetTicks64()+8000;
+
+                        if(i == 0) {
+                            hedgehogBullets[i].angle = 0;
+                        }
+                        else if(i == 1) {
+                            hedgehogBullets[i].angle = M_PI/2;
+                        }
+                        else if(i == 2) {
+                            hedgehogBullets[i].angle = M_PI;
+                        }
+                        else if(i == 3) {
+                            hedgehogBullets[i].angle = -M_PI/2;
+                        }
+                        else if(i == 4) {
+                            hedgehogBullets[i].angle = M_PI/4;
+                        }
+                        else if(i == 5) {
+                            hedgehogBullets[i].angle = -M_PI/4;
+                        }
+                        else if(i == 6) {
+                            hedgehogBullets[i].angle = 3*M_PI/4;
+                        }
+                        else if(i == 7) {
+                            hedgehogBullets[i].angle = -3*M_PI/4;
+                        }
+                    }
+                    else {
+                        hedgehogBullets[i].Move();
+                        CheckBorderCollision(event, hedgehogBullets[i], stage);
+                    }
+                }
+            }
+
+            
+            for(int i = 0; i < hedgehogBullets.size(); i++) {
+                if(hedgehogBullets[i].isFiring) {
+                    hedgehogBullets[i].Move();
+                    CheckBorderCollision(event, hedgehogBullets[i], stage);
+                    CheckCollision(event, hedgehogBullets[i], player);
+                    SDL_RenderCopy(renderer, hedgehog.bullet.rectImg, NULL, &hedgehogBullets[i].rect);
+                }
+            }
+            RenderHedgehog(renderer, hedgehog, guns);
+            
         }
         
         
+
         if(player.playerHP <= 0) {
             player.imgRect.x = 41;
             player.imgRect.y = 43;
@@ -384,7 +489,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             }
         }
         else {
-            if(CheckEnemiesDead(dinos, firews, num)) {
+            if(CheckEnemiesDead(dinos, firews, hedgehog)) {
                 RenderPortal(renderer, stage);
                 if(Collision(player.player, stage.portal) && event.returnDown) {
                     event.curStage++;

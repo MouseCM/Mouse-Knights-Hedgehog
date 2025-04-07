@@ -1,3 +1,6 @@
+
+using namespace std;
+
 class Audio {
 private:
     int audioRate = 44100;
@@ -18,6 +21,8 @@ public:
         run = Mix_LoadWAV("audio/run.wav");
         explosion = Mix_LoadWAV("audio/explosion.wav");
         dinoFire = Mix_LoadWAV("audio/dinoFire.wav");
+        Mix_Volume(3, 20);
+        Mix_Volume(4, 20);
     }
 
     void Theme() {
@@ -46,6 +51,10 @@ public:
 
     void DinoFire() {
         Mix_PlayChannel(3, dinoFire, 0);
+    }
+
+    void HedgehogFire() {
+        Mix_PlayChannel(4, dinoFire, 0);
     }
 
 };

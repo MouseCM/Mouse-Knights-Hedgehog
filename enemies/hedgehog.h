@@ -11,7 +11,7 @@ public:
 
     int spawnTime = SDL_GetTicks64()+2000;
     bool isSpawned = false;
-
+    int curBullet = 0;
 
     void SetRect(SDL_Renderer *renderer, int x, int y) {
         rectImg = IMG_LoadTexture(renderer, "assets/hedgehog.png");

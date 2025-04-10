@@ -173,6 +173,7 @@ void RenderFirews(SDL_Renderer *renderer, Audio &audio, vector<Firew> &firews) {
 }
 
 
+
 // render portal when player win
 void RenderPortal(SDL_Renderer *renderer, Stage &stage) {
     if(SDL_GetTicks64() >= stage.animationPortalTime + 200) {
@@ -201,6 +202,119 @@ void RenderPortal(SDL_Renderer *renderer, Stage &stage) {
     
 }
 
+
+
+void RenderHedgehogStage(Event &event, SDL_Renderer *renderer, Audio &audio, Stage &stage, Hedgehog &hedgehog, Player &player, vector<Player::Bullet> bullets, vector<Hedgehog::Bullet> &hedgehogBullets, vector<Hedgehog::Gun> &guns, vector<Firew> &firews){
+    for(int i = 0; i < bullets.size(); i++) {
+        CheckCollision(event, bullets[i], hedgehog, guns);
+    }
+
+    for(int i = 0; i < guns.size(); i++) {
+        for(int j = 0; j < bullets.size(); j++) {
+            CheckCollision(event, bullets[j], guns[i], guns, hedgehog);
+        }
+        
+        GunFire(event, renderer, audio, guns[i], player);
+        if(guns[i].bullet.isFiring) {
+            guns[i].bullet.Move();
+            CheckBorderCollision(event, guns[i].bullet, stage);
+            CheckCollision(event, guns[i].bullet, player);
+        }
+    }
+
+
+    SpawnFirew(hedgehog, firews, stage, renderer);
+
+
+    // skill 1
+    if(hedgehog.curBullet < hedgehogBullets.size()-1) {
+        if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
+            HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[hedgehog.curBullet], player);
+            hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+200;
+            hedgehog.curBullet++;
+        }
+    }
+    else {
+        if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
+            HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[hedgehog.curBullet], player);
+            hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+6800;
+            hedgehog.curBullet = 0;
+        }
+    }
+
+
+    // skill 2
+    if(SDL_GetTicks64() >= hedgehog.bullet.skill2ReloadTime) {
+        for(int i = 0; i < hedgehogBullets.size(); i++) {
+            if(!hedgehogBullets[i].isFiring) {
+                HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[i], player);
+                hedgehog.bullet.skill2ReloadTime = SDL_GetTicks64()+8000;
+
+                if(i == 0) {
+                    hedgehogBullets[i].angle = 0;
+                }
+                else if(i == 1) {
+                    hedgehogBullets[i].angle = M_PI/2;
+                }
+                else if(i == 2) {
+                    hedgehogBullets[i].angle = M_PI;
+                }
+                else if(i == 3) {
+                    hedgehogBullets[i].angle = -M_PI/2;
+                }
+                else if(i == 4) {
+                    hedgehogBullets[i].angle = M_PI/4;
+                }
+                else if(i == 5) {
+                    hedgehogBullets[i].angle = -M_PI/4;
+                }
+                else if(i == 6) {
+                    hedgehogBullets[i].angle = 3*M_PI/4;
+                }
+                else if(i == 7) {
+                    hedgehogBullets[i].angle = -3*M_PI/4;
+                }
+            }
+            else {
+                hedgehogBullets[i].Move();
+                CheckBorderCollision(event, hedgehogBullets[i], stage);
+            }
+        }
+    }
+
+    
+    for(int i = 0; i < hedgehogBullets.size(); i++) {
+        if(hedgehogBullets[i].isFiring) {
+            hedgehogBullets[i].Move();
+            CheckBorderCollision(event, hedgehogBullets[i], stage);
+            CheckCollision(event, hedgehogBullets[i], player);
+            SDL_RenderCopy(renderer, hedgehog.bullet.rectImg, NULL, &hedgehogBullets[i].rect);
+        }
+    }
+    RenderHedgehog(renderer, hedgehog, guns);
+}
+
+bool RenderLossScreen(Event &event, SDL_Renderer *renderer, Player &player, Stage &stage) {
+    player.imgRect.x = 41;
+    player.imgRect.y = 43;
+    player.imgRect.w = 14;
+    player.imgRect.h = 13;
+    player.player.w = 60;
+    player.player.h = 50;
+    event.isLose = true;
+    SDL_ShowCursor(SDL_ENABLE);
+    SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
+    SDL_RenderCopy(renderer, stage.loseImg, NULL, &stage.lose);
+    RenderDeadPlayer(renderer, player);
+    if(event.isRetry) {
+        event.isRetry = false;
+        event.isLose = false;
+        event.mouseButtonLeftDown = false;
+        return 0;
+    }
+
+    return 1;
+}
 
 // render home screen (first screen)
 void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
@@ -249,7 +363,10 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
     vector<Dino> dinos;
     vector<Player::Bullet> bullets;
     vector<Firew> firews;
-    int curBullet = 0;
+    vector<SDL_Rect> boxes;
+    vector<Hedgehog::Bullet> hedgehogBullets(8);
+    vector<Hedgehog::Gun> guns(4);
+    int num = 0;
 
 
     stage.SetStage(renderer, level);
@@ -262,83 +379,8 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
     output.close();
     
     string input = "levels/" + level + ".txt";
-    ifstream file(input);
     
-
-    int num = 0;
-    file >> num;
-
-    
-    int x = 0;
-    int y = 0;
-
-    for(int i = 0; i < num; i++){
-        Dino temp;
-        file >> x >> y;
-        
-        temp.SetRect(renderer, x-INIT_X, y-INIT_Y);
-        // temp.Fire();
-        temp.bullet.SetRect(renderer);
-        dinos.push_back(temp);
-    }
-
-    vector<SDL_Rect> boxes;
-    file >> num;
-
-    for(int i = 0; i < num; i++) {
-        SDL_Rect temp;
-        file >> temp.x >> temp.y >> temp.w >> temp.h;
-        boxes.push_back(temp);
-    }
-
-    for(int t = 0; t < boxes.size(); t++) {
-        for(int i = boxes[t].x; i <= boxes[t].x+boxes[t].w; i++) {
-            for(int j = boxes[t].y; j <= boxes[t].y+boxes[t].h; j++) {
-                canMove[i-LEFT][j-UP] = false;
-            }
-        }
-    }
-
-    file >> num;
-
-    for(int i = 0; i < num; i++) {
-        file >> x >> y;
-        Firew temp;
-        temp.SetRect(renderer, x-INIT_X, y-INIT_Y);
-        firews.push_back(temp);
-    }
-
-    file >> num;
-
-    // boss stage
-    if(num == 1) {
-        hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
-        for(int i = 0; i < firews.size(); i++) {
-            firews[i].hp = -1;
-        }
-        hedgehog.bullet.SetRect(renderer);
-    }
-    else {
-        hedgehog.hp = 0;
-    }
-
-    vector<Hedgehog::Bullet> hedgehogBullets(8);
-    for(int i = 0; i < hedgehogBullets.size(); i++) {
-        hedgehogBullets[i].SetRect(renderer);
-    }
-
-    vector<Hedgehog::Gun> guns(4);
-    
-    for(int i = 0; i < guns.size(); i++) {
-        guns[i].SetRect(renderer, 0, 0);
-        guns[i].bullet.SetRect(renderer);
-    }
-    guns[0].SetRect(renderer, LEFT-INIT_X, UP-INIT_Y);
-    guns[1].SetRect(renderer, LEFT-INIT_X, DOWN-INIT_Y-guns[1].rect.h);
-    guns[2].SetRect(renderer, RIGHT-INIT_X-guns[2].rect.w, UP-INIT_Y);
-    guns[3].SetRect(renderer, RIGHT-INIT_X-guns[3].rect.w, DOWN-INIT_Y-guns[2].rect.h);
-
-    file.close();
+    InitStage(input, renderer, stage, dinos, firews, guns, hedgehog, boxes, canMove, hedgehogBullets, num);
 
 
     stage.SetPortal(renderer);
@@ -385,115 +427,13 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
         // BOSS
         if(num == 1 && hedgehog.hp > 0) {
-            for(int i = 0; i < bullets.size(); i++) {
-                CheckCollision(event, bullets[i], hedgehog, guns);
-            }
-
-            for(int i = 0; i < guns.size(); i++) {
-                for(int j = 0; j < bullets.size(); j++) {
-                    CheckCollision(event, bullets[j], guns[i], guns, hedgehog);
-                }
-                
-                GunFire(event, renderer, audio, guns[i], player);
-                if(guns[i].bullet.isFiring) {
-                    guns[i].bullet.Move();
-                    CheckBorderCollision(event, guns[i].bullet, stage);
-                    CheckCollision(event, guns[i].bullet, player);
-                }
-            }
-
-
-            SpawnFirew(hedgehog, firews, stage, renderer);
-
-
-            // skill 1
-            if(curBullet < hedgehogBullets.size()-1) {
-                if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
-                    HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[curBullet], player);
-                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+200;
-                    curBullet++;
-                }
-            }
-            else {
-                if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
-                    HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[curBullet], player);
-                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+6800;
-                    curBullet = 0;
-                }
-            }
-
-
-            // skill 2
-            if(SDL_GetTicks64() >= hedgehog.bullet.skill2ReloadTime) {
-                for(int i = 0; i < hedgehogBullets.size(); i++) {
-                    if(!hedgehogBullets[i].isFiring) {
-                        HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[i], player);
-                        hedgehog.bullet.skill2ReloadTime = SDL_GetTicks64()+8000;
-
-                        if(i == 0) {
-                            hedgehogBullets[i].angle = 0;
-                        }
-                        else if(i == 1) {
-                            hedgehogBullets[i].angle = M_PI/2;
-                        }
-                        else if(i == 2) {
-                            hedgehogBullets[i].angle = M_PI;
-                        }
-                        else if(i == 3) {
-                            hedgehogBullets[i].angle = -M_PI/2;
-                        }
-                        else if(i == 4) {
-                            hedgehogBullets[i].angle = M_PI/4;
-                        }
-                        else if(i == 5) {
-                            hedgehogBullets[i].angle = -M_PI/4;
-                        }
-                        else if(i == 6) {
-                            hedgehogBullets[i].angle = 3*M_PI/4;
-                        }
-                        else if(i == 7) {
-                            hedgehogBullets[i].angle = -3*M_PI/4;
-                        }
-                    }
-                    else {
-                        hedgehogBullets[i].Move();
-                        CheckBorderCollision(event, hedgehogBullets[i], stage);
-                    }
-                }
-            }
-
-            
-            for(int i = 0; i < hedgehogBullets.size(); i++) {
-                if(hedgehogBullets[i].isFiring) {
-                    hedgehogBullets[i].Move();
-                    CheckBorderCollision(event, hedgehogBullets[i], stage);
-                    CheckCollision(event, hedgehogBullets[i], player);
-                    SDL_RenderCopy(renderer, hedgehog.bullet.rectImg, NULL, &hedgehogBullets[i].rect);
-                }
-            }
-            RenderHedgehog(renderer, hedgehog, guns);
+            RenderHedgehogStage(event, renderer, audio, stage, hedgehog, player, bullets, hedgehogBullets, guns, firews);
         }
         
         
 
         if(player.playerHP <= 0) {
-            player.imgRect.x = 41;
-            player.imgRect.y = 43;
-            player.imgRect.w = 14;
-            player.imgRect.h = 13;
-            player.player.w = 60;
-            player.player.h = 50;
-            event.isLose = true;
-            SDL_ShowCursor(SDL_ENABLE);
-            SDL_RenderCopy(renderer, stage.retryImg, NULL, &stage.retry);
-            SDL_RenderCopy(renderer, stage.loseImg, NULL, &stage.lose);
-            RenderDeadPlayer(renderer, player);
-            if(event.isRetry) {
-                event.isRetry = false;
-                event.isLose = false;
-                event.mouseButtonLeftDown = false;
-                break;
-            }
+            if(!RenderLossScreen(event, renderer, player, stage)) break;
         }
         else {
             if(CheckEnemiesDead(dinos, firews, hedgehog)) {

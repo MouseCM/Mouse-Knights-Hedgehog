@@ -37,6 +37,82 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     cout << "Setup successfully";
 }
 
+void InitStage(string &input, SDL_Renderer *renderer, Stage &stage, vector<Dino> &dinos, vector<Firew> &firews, vector<Hedgehog::Gun> &guns, Hedgehog &hedgehog, vector<SDL_Rect> &boxes, vector<vector<bool>> &canMove, vector<Hedgehog::Bullet> &hedgehogBullets, int &num) {
+    ifstream file(input);
+    file >> num;
+
+    
+    int x = 0;
+    int y = 0;
+
+    for(int i = 0; i < num; i++){
+        Dino temp;
+        file >> x >> y;
+        
+        temp.SetRect(renderer, x-INIT_X, y-INIT_Y);
+        // temp.Fire();
+        temp.bullet.SetRect(renderer);
+        dinos.push_back(temp);
+    }
+
+    
+    file >> num;
+
+    for(int i = 0; i < num; i++) {
+        SDL_Rect temp;
+        file >> temp.x >> temp.y >> temp.w >> temp.h;
+        boxes.push_back(temp);
+    }
+
+    for(int t = 0; t < boxes.size(); t++) {
+        for(int i = boxes[t].x; i <= boxes[t].x+boxes[t].w; i++) {
+            for(int j = boxes[t].y; j <= boxes[t].y+boxes[t].h; j++) {
+                canMove[i-LEFT][j-UP] = false;
+            }
+        }
+    }
+
+    file >> num;
+
+    for(int i = 0; i < num; i++) {
+        file >> x >> y;
+        Firew temp;
+        temp.SetRect(renderer, x-INIT_X, y-INIT_Y);
+        firews.push_back(temp);
+    }
+
+    file >> num;
+
+    // boss stage
+    if(num == 1) {
+        hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
+        for(int i = 0; i < firews.size(); i++) {
+            firews[i].hp = -1;
+        }
+        hedgehog.bullet.SetRect(renderer);
+    }
+    else {
+        hedgehog.hp = 0;
+    }
+
+    
+    for(int i = 0; i < hedgehogBullets.size(); i++) {
+        hedgehogBullets[i].SetRect(renderer);
+    }
+
+    
+    
+    for(int i = 0; i < guns.size(); i++) {
+        guns[i].SetRect(renderer, 0, 0);
+        guns[i].bullet.SetRect(renderer);
+    }
+    guns[0].SetRect(renderer, LEFT-INIT_X, UP-INIT_Y);
+    guns[1].SetRect(renderer, LEFT-INIT_X, DOWN-INIT_Y-guns[1].rect.h);
+    guns[2].SetRect(renderer, RIGHT-INIT_X-guns[2].rect.w, UP-INIT_Y);
+    guns[3].SetRect(renderer, RIGHT-INIT_X-guns[3].rect.w, DOWN-INIT_Y-guns[2].rect.h);
+
+    file.close();
+}
 
 // player fire bullet function
 void Fire(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, vector<Player::Bullet> &bullets) {
@@ -494,6 +570,7 @@ void DinosMove(Event event, vector<Dino> &dinos, Stage stage, Player player, vec
 // firew moving, also check border and boxed collision
 void FirewsMove(Event event, vector<Firew> &firews, Stage stage, Player player, vector<SDL_Rect> boxes) {
     if(event.isLose) return;
+
     float angle = 0;
     float tempX = 0;
     float tempY = 0;

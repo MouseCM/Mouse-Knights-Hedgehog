@@ -45,6 +45,7 @@ void InitStage(string &input, SDL_Renderer *renderer, Stage &stage, vector<Dino>
     int x = 0;
     int y = 0;
 
+    // init dinos
     for(int i = 0; i < num; i++){
         Dino temp;
         file >> x >> y;
@@ -56,14 +57,15 @@ void InitStage(string &input, SDL_Renderer *renderer, Stage &stage, vector<Dino>
     }
 
     
+    // init boxes
     file >> num;
-
     for(int i = 0; i < num; i++) {
         SDL_Rect temp;
         file >> temp.x >> temp.y >> temp.w >> temp.h;
         boxes.push_back(temp);
     }
 
+    // init map for player moving
     for(int t = 0; t < boxes.size(); t++) {
         for(int i = boxes[t].x; i <= boxes[t].x+boxes[t].w; i++) {
             for(int j = boxes[t].y; j <= boxes[t].y+boxes[t].h; j++) {
@@ -72,8 +74,8 @@ void InitStage(string &input, SDL_Renderer *renderer, Stage &stage, vector<Dino>
         }
     }
 
+    // init firew
     file >> num;
-
     for(int i = 0; i < num; i++) {
         file >> x >> y;
         Firew temp;
@@ -81,9 +83,9 @@ void InitStage(string &input, SDL_Renderer *renderer, Stage &stage, vector<Dino>
         firews.push_back(temp);
     }
 
-    file >> num;
 
     // boss stage
+    file >> num;
     if(num == 1) {
         hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
         for(int i = 0; i < firews.size(); i++) {

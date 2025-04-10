@@ -10,7 +10,7 @@
 #include "constants.h"
 #include "audio.h"
 #include "event.h"
-#include "player.h"
+#include "player.h"     
 #include "enemies/dino.h"
 #include "enemies/firew.h"
 #include "enemies/hedgehog.h"
@@ -18,10 +18,8 @@
 #include "helper_functions.h"
 #include "rendering_functions.h"
 
-
 using namespace std;
 
- 
 
 int run() {
     SDL_Window *window = nullptr;
@@ -31,7 +29,7 @@ int run() {
     srand(1);
     SetUp(window, renderer);
 
-    
+
     Stage stage;
 
 

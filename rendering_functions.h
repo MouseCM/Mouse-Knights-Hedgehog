@@ -392,6 +392,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
+
         MoveCamera(renderer, event, audio, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog, hedgehogBullets, guns, num);
 
 
@@ -425,7 +426,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         
 
 
-        // BOSS
+        // BOSS stage
         if(num == 1 && hedgehog.hp > 0) {
             RenderHedgehogStage(event, renderer, audio, stage, hedgehog, player, bullets, hedgehogBullets, guns, firews);
         }

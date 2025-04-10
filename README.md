@@ -9,13 +9,30 @@
 
 # Game preview
 
+
 # Config
 - Due to linking issues with macOS, I coded everything in a single file to avoid missing library references between files.
 - config sdl2 for macOS:
-make a file name makefile which include this:
 
+**Install sdl2, sdl2_image, sdl2_mixer using homebrew**     
+
+      brew install sdl2   
+      brew install sdl2_image
+      brew install sdl2_mixer
+        
+**Create a file name makefile which include this:**
+
+      SRC_DIR = .
+      BUILD_DIR = build/debug
+      CC = g++
+      SRC_FILES = $(wildcard $(SRC_DIR)/main.cpp)
+      INCLUDE_PATHS = -I/opt/homebrew/opt/sdl2/include/SDL2 -I/opt/homebrew/Cellar/sdl2_image/2.8.5/include -I/opt/homebrew/Cellar/sdl2_mixer/2.8.1_1/include 
+      LIBRARY_PATHS = -L/opt/homebrew/opt/sdl2/lib -L/opt/homebrew/Cellar/sdl2_image/2.8.5/lib -L/opt/homebrew/Cellar/sdl2_mixer/2.8.1_1/lib
+      COMPILER_FLAGS = -std=c++11 -Wall -O0 -g
+      LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_mixer
+      
       all:
-          g++ -F/Library/Frameworks -framework SDL2 -framework SDL2_image -rpath /Library/Frameworks main.cpp -o main
+          $(CC) $(COMPILER_FLAGS) $(LINKER_FLAGS) $(INCLUDE_PATHS) $(LIBRARY_PATHS) $(SRC_FILES) -o main
 
 
 
@@ -27,3 +44,4 @@ make a file name makefile which include this:
     https://gist.github.com/armornick/3434362
     https://www.youtube.com/watch?v=XOk0aGwZYn8
     claude.ai
+    chatgpt.com

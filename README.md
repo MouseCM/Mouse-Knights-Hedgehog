@@ -8,8 +8,18 @@
 - You will take on the role of Mouse to defeat the witch.
 
 # Game preview
+**Home**
+![Home](https://github.com/MouseCM/Mouse-Knights-Hedgehog/blob/main/assets/home.png)
+**Stage**
+Using W, A, S, D to move, left mouse click to fire bullet each 0.5s.
+![Stage](https://github.com/MouseCM/Mouse-Knights-Hedgehog/blob/main/preview/stage.png)
+
+**Boss**
+![boss](https://github.com/MouseCM/Mouse-Knights-Hedgehog/blob/main/preview/boss.png) 
 
 
+**Screen when win game**
+![end](https://github.com/MouseCM/Mouse-Knights-Hedgehog/blob/main/assets/end.png)
 # Config
 - Due to linking issues with macOS, I coded everything in a single file to avoid missing library references between files.
 - config sdl2 for macOS:

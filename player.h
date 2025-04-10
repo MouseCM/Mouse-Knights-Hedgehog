@@ -3,8 +3,6 @@ using namespace std;
 
 class Player {
 public:
-    int playerW = 0;
-    int playerH = 0;
     SDL_Rect player = {0, 0, 0, 0}; 
     SDL_Rect imgRect = {0, 0, 30, 40};
     int playerSpeed = 5;
@@ -24,22 +22,17 @@ public:
         dot = IMG_LoadTexture(renderer, "assets/dot.png");
         hp = IMG_LoadTexture(renderer, "assets/hp.png");
         name = IMG_LoadTexture(renderer, "assets/name.png");
-	    SDL_QueryTexture(playerImg, NULL, NULL, &playerW, &playerH);
+	    SDL_QueryTexture(playerImg, NULL, NULL, &player.w, &player.h);
         imgRect = {17, 17, 14, 15};
-        player.w = 50;
-        player.h = 60;
-        // player.w = playerW*1.5;
-        // player.h = playerH*1.5;
+        player = {0, 0, player.w/35*10, player.h/35*10};
         player = {SCREEN_WIDTH/2-player.w/2, SCREEN_HEIGHT/2-player.h/2, player.w, player.h};
     }
 
 
     class Bullet {
     public:
-        int rectW = 0;
-        int rectH = 0;
         SDL_Texture *bulletImg = NULL;
-        SDL_Rect bullet = {26, 26, 26, 26};
+        SDL_Rect bullet = {0, 0, 0, 0};
         int speed = 40;
         int aimX = 0;
         int aimY = 0;
@@ -47,20 +40,18 @@ public:
         float deltaY = 0;
         bool isFiring = false;
         float angle = 0;
-        int reloadTime = SDL_GetTicks64();
+        int reloadTime = SDL_GetTicks64()-500;
         int damage = 10;
 
 
         void SetPlayerBullet(SDL_Renderer *renderer) {
             bulletImg = IMG_LoadTexture(renderer, "assets/bullet.png");
-            SDL_QueryTexture(bulletImg, NULL, NULL, &rectW, &rectH);
-            bullet.w = rectW * 1.5;
-            bullet.h = rectH * 1.5;
+            SDL_QueryTexture(bulletImg, NULL, NULL, &bullet.w, &bullet.h);
+            bullet = {0, 0, bullet.w*15/10, bullet.h*15/10};
         }
 
 
         void Move(Event &event) {
-
             if(isFiring) {
                 deltaX += cos(angle) * speed;
                 deltaY += sin(angle) * speed;

@@ -7,10 +7,10 @@ public:
     SDL_Texture *rectImg = NULL;
     SDL_Texture *rectImgHurt = NULL;
     SDL_Rect rect = {0, 0, 0, 0};
-
     SDL_Rect hpRect = {0, 0, 0, 0};
 
     int spawnTime = SDL_GetTicks64()+2000;
+    bool isSpawned = false;
 
 
     void SetRect(SDL_Renderer *renderer, int x, int y) {

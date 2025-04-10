@@ -1,5 +1,4 @@
 class Dino {
-
 public:
     int hp = 100;
     int hurtTime = 0;

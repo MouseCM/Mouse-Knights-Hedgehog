@@ -31,6 +31,7 @@ int run() {
     srand(1);
     SetUp(window, renderer);
 
+    
     Stage stage;
 
 
@@ -39,6 +40,7 @@ int run() {
     audio.Theme();
 
 
+    // game loop
     while(event.appIsRunning) {
         if(event.curStage == 0) {
             RenderHome(event, renderer, stage);

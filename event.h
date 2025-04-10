@@ -1,9 +1,6 @@
 using namespace std;
 
 class Event {
-
-
-
 public:
     bool appIsRunning = true;   
     bool wDown = false;
@@ -21,11 +18,11 @@ public:
     int curStage = 0;
     bool isRetry = 0;
     bool isLose = false;
-    // bool isPaused = false;
 
 
     SDL_Event event;
 
+    // check event for home screen
     void checkHome() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -56,9 +53,9 @@ public:
 
     }
 
+    // check event when on stage
     void CheckEvent() {
         while (SDL_PollEvent(&event)) {
-            // Handle each specific event
             if (event.type == SDL_QUIT) {
                 appIsRunning = false;
             }
@@ -78,12 +75,12 @@ public:
                     mouseButtonLeftDown = false;
                 }
         
-                // cout << "SDfsdfsafda" << mouseButtonLeftDown << endl;
                 if(mouseButtonLeftDown) {
                     int x;
                     int y;
                     SDL_GetMouseState(&x, &y);
-                    // cout << x << ' ' << y << endl;
+
+                    // position of retry button
                     if(x >= 540 && x <= 735 && y >= 511 && y <= 605) {
                         isRetry = true;
                     }
@@ -163,12 +160,13 @@ public:
                 mouseButtonLeftDown = false;
             }
 
-            // cout << mouseX << ' ' << mouseY << endl;
             
+            // position of new game button
             if(mouseX >= 417 && mouseX <= 862 && mouseY >= 507 && mouseY <= 618) {
                 isNewGame = true;
             } 
 
+            // position of exit button
             if(mouseX >= 492 && mouseX <= 788 && mouseY >= 629 && mouseY <= 714) {
                 appIsRunning = false;
             }

@@ -1,14 +1,18 @@
 
-
+// render hitboxes use for debugging
 void RenderHitboxes(SDL_Renderer *renderer, SDL_Rect rect) {
     SDL_SetRenderDrawColor(renderer, 255, 105, 180, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
 }
 
+
+// render background which is stage 1 2 3 .... 
 void RenderBackground(SDL_Renderer *renderer, Stage &stage) {
     SDL_RenderCopy(renderer, stage.backgroundImg, NULL, &stage.background);
 }
 
+
+// render custom scope aka red dot
 void RenderCustomDotCursor(SDL_Renderer* renderer, Player &player) {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -18,6 +22,8 @@ void RenderCustomDotCursor(SDL_Renderer* renderer, Player &player) {
     SDL_RenderCopy(renderer, player.dot, NULL, &dotRect);
 }
 
+
+// render player mouse
 void RenderPlayer(SDL_Renderer *renderer, Player &player) {
     if(player.playerHP <= 0) return; 
     player.playerHPRect.x = 50;
@@ -45,6 +51,8 @@ void RenderPlayer(SDL_Renderer *renderer, Player &player) {
 
 }
 
+
+// render boss hedgehog
 void RenderHedgehog(SDL_Renderer *renderer, Hedgehog &hedgehog, vector<Hedgehog::Gun> &guns) {
     if (hedgehog.hp <= 0) {
         return;
@@ -81,10 +89,14 @@ void RenderHedgehog(SDL_Renderer *renderer, Hedgehog &hedgehog, vector<Hedgehog:
 
 }
 
+
+// render when player dead
 void RenderDeadPlayer(SDL_Renderer *renderer, Player &player) {
     SDL_RenderCopy(renderer, player.playerImg, &player.imgRect, &player.player);
 }
 
+
+// render single dino
 void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     if (dino.hp <= 0) {
         return;
@@ -109,16 +121,27 @@ void RenderDino(SDL_Renderer *renderer, Dino &dino) {
     
 }
 
+// render dinos
+void RenderDinos(SDL_Renderer *renderer, vector<Dino> &dinos) {
+    for(int i = 0; i < dinos.size(); i++) {
+        RenderDino(renderer, dinos[i]);
+    }
+}
+
+
+// render single firew
 void RenderFirew(SDL_Renderer *renderer, Audio &audio, Firew &firew) {
-    if (firew.hp <= 0) {
-        if(SDL_GetTicks64() <= firew.boomTime+100) {
+    if(firew.hp < 0) return;
+    if (firew.hp == 0) {
+        if(SDL_GetTicks64() <= firew.boomTime+1) {
             audio.FirewExplosion();
+            // firew.hp -= 1;
         }
+
         if(SDL_GetTicks64() <= firew.boomTime+1000) {
             firew.boomRect.x = firew.rect.x;
             firew.boomRect.y = firew.rect.y;
             SDL_RenderCopy(renderer, firew.boomImg, NULL, &firew.boomRect);
-            
         }
         return;
     }
@@ -142,7 +165,15 @@ void RenderFirew(SDL_Renderer *renderer, Audio &audio, Firew &firew) {
     
 }
 
+// render firews
+void RenderFirews(SDL_Renderer *renderer, Audio &audio, vector<Firew> &firews) {
+    for(int i = 0; i < firews.size(); i++) {
+        RenderFirew(renderer, audio, firews[i]);
+    }
+}
 
+
+// render portal when player win
 void RenderPortal(SDL_Renderer *renderer, Stage &stage) {
     if(SDL_GetTicks64() >= stage.animationPortalTime + 200) {
         if(stage.animated == 0) {
@@ -171,8 +202,7 @@ void RenderPortal(SDL_Renderer *renderer, Stage &stage) {
 }
 
 
-
-
+// render home screen (first screen)
 void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
     // event.CheckEvent();
     stage.SetHome(renderer);
@@ -182,12 +212,14 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
         event.checkHome();
 
 
+        // check newgame button is clicked
         if(event.mouseButtonLeftDown && event.isNewGame) {
             event.isNewGame = false;
             event.mouseButtonLeftDown = false;
             event.curStage = 1;
         }
 
+        // check continue button is clicked
         if(event.mouseButtonLeftDown && event.isContinue) { 
             event.mouseButtonDown = false;
             event.isContinue = false;
@@ -209,7 +241,7 @@ void RenderHome(Event &event, SDL_Renderer *renderer, Stage &stage) {
 
 
 
-
+// render stage 
 void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audio, string level) {
     Player player;
     Hedgehog hedgehog;
@@ -278,11 +310,11 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
     file >> num;
 
+    // boss stage
     if(num == 1) {
         hedgehog.SetRect(renderer ,SCREEN_WIDTH/2, SCREEN_HEIGHT/2-300);
-        for(int i = 0; i < 4; i++) {
-            firews[i].hp = 0;
-            dinos[i].hp = 0;
+        for(int i = 0; i < firews.size(); i++) {
+            firews[i].hp = -1;
         }
         hedgehog.bullet.SetRect(renderer);
     }
@@ -320,62 +352,35 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         
         MoveCamera(renderer, event, audio, player, stage, dinos, bullets, canMove, boxes, firews, hedgehog, hedgehogBullets, guns, num);
 
+
         RenderBackground(renderer, stage);
         
 
-        Fire(renderer, event, audio, player, bullets);
-        for(int i = 0; i < bullets.size(); i++) {
-            if(bullets[i].isFiring) {
-                bullets[i].Move(event);
-                CheckBorderCollision(event, bullets[i], stage, boxes);
-                if(bullets[i].isFiring) {
-                    SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &bullets[i].bullet);
-                }
-            }
-        }
+        // player firing bullet
+        PlayerBullet(event, renderer, audio, stage, bullets, player, boxes, dinos, firews);
 
-        for(int i = 0; i < dinos.size(); i++) {
-            DinoFire(event, renderer, audio, dinos[i], player);
-            if(dinos[i].bullet.isFiring) {
-                dinos[i].bullet.Move(event);
-                CheckBorderCollision(event, dinos[i].bullet, stage, boxes);
-            }
-        }
+        // make dino fire a bullet and moving and border checking
+        DinosBullet(event, renderer, audio, stage, dinos, player, boxes);
 
 
-        DinoMove(event, dinos, stage, player, boxes);
+        // move dino
+        DinosMove(event, dinos, stage, player, boxes);
 
-        FirewMove(event, firews, stage, player, boxes);
+        // move firew
+        FirewsMove(event, firews, stage, player, boxes);
+
+
+
+
+        // check firews close to player to boom
+        FirewsBoom(event, firews, player);
+
+
+        RenderDinos(renderer, dinos);
         
 
-        for(int i = 0; i < dinos.size(); i++) {
-            for(int j = 0; j < bullets.size(); j++) {
-                CheckCollision(event, bullets[j], dinos[i]);
-            }
-
-            if(dinos[i].bullet.isFiring) {
-                SDL_RenderCopy(renderer, dinos[i].bullet.rectImg, NULL, &dinos[i].bullet.rect);
-            }
-
-            CheckCollision(event, dinos[i].bullet, player);
-        }
-
-        for(int i = 0; i < firews.size(); i++) {
-            for(int j = 0; j < bullets.size(); j++) {
-                CheckCollision(event, bullets[j], firews[i]);
-            }
-
-            CheckCollision(event, firews[i], player);
-        }
-
-
-        for(int i = 0; i < dinos.size(); i++) {
-            RenderDino(renderer, dinos[i]);
-        }
-
-        for(int i = 0; i < firews.size(); i++) {
-            RenderFirew(renderer, audio, firews[i]);
-        }
+        RenderFirews(renderer, audio, firews);
+        
 
 
         // BOSS
@@ -398,7 +403,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             }
 
 
-            SpawnFirew(hedgehog, firews, stage);
+            SpawnFirew(hedgehog, firews, stage, renderer);
 
 
             // skill 1
@@ -412,7 +417,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             else {
                 if(SDL_GetTicks64() >= hedgehog.bullet.skill1ReloadTime) {
                     HedgehogFire(event, renderer, audio, hedgehog, hedgehogBullets[curBullet], player);
-                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+7800;
+                    hedgehog.bullet.skill1ReloadTime = SDL_GetTicks64()+6800;
                     curBullet = 0;
                 }
             }
@@ -467,7 +472,6 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
                 }
             }
             RenderHedgehog(renderer, hedgehog, guns);
-            
         }
         
         
@@ -503,12 +507,12 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         }
 
         RenderPlayer(renderer, player);
-
         
         SDL_RenderPresent(renderer);
         SDL_Delay(16);   
     } 
 
+    // reset
     bullets.clear();
     canMove.clear();
     boxes.clear();
@@ -517,7 +521,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
 
 
-
+// render end screen when player finish the game
 void RenderEnd(Event &event, SDL_Renderer *renderer, Stage &stage) {
     stage.SetEnd(renderer);
     SDL_ShowCursor(SDL_ENABLE);
@@ -526,7 +530,7 @@ void RenderEnd(Event &event, SDL_Renderer *renderer, Stage &stage) {
         if(event.curStage != END) break;
         event.CheckEnd();
 
-
+        // check newgame button is clicked
         if(event.mouseButtonLeftDown && event.isNewGame) {
             event.isNewGame = false;
             event.mouseButtonLeftDown = false;

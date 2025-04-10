@@ -1,5 +1,6 @@
 using namespace std;
 
+// setup window
 void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cout << "SDL could not be initialized: " << SDL_GetError();
@@ -36,6 +37,8 @@ void SetUp(SDL_Window* &window, SDL_Renderer* &renderer) {
     cout << "Setup successfully";
 }
 
+
+// player fire bullet function
 void Fire(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, vector<Player::Bullet> &bullets) {
     if(event.isLose) return;
     if (event.mouseButtonLeftDown) {
@@ -58,6 +61,8 @@ void Fire(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, ve
     }
 }
 
+
+// dino fire bullet function
 void DinoFire(Event event, SDL_Renderer *renderer, Audio &audio, Dino &dino, Player &player) {
     if(event.isLose) return;
     if(SDL_GetTicks64() >= dino.bullet.reloadTime && dino.hp > 0) {
@@ -75,8 +80,7 @@ void DinoFire(Event event, SDL_Renderer *renderer, Audio &audio, Dino &dino, Pla
 
 
 
-
-
+// setup bullet for hedgehog
 void HedgehogFire(Event event, SDL_Renderer *renderer, Audio &audio, Hedgehog &hedgehog, Hedgehog::Bullet &bullet, Player &player) {
     if(event.isLose) return;
 
@@ -92,6 +96,8 @@ void HedgehogFire(Event event, SDL_Renderer *renderer, Audio &audio, Hedgehog &h
     bullet.isFiring = true;
 }
 
+
+// gun of hedgehog fire each 5 second
 void GunFire(Event event, SDL_Renderer *renderer, Audio &audio, Hedgehog::Gun &gun, Player &player) {
     if(event.isLose) return;
     if(SDL_GetTicks64() >= gun.bullet.reloadTime) {
@@ -107,6 +113,8 @@ void GunFire(Event event, SDL_Renderer *renderer, Audio &audio, Hedgehog::Gun &g
     }
 }
 
+
+// check collision of 2 rect
 bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
     // if(event.isLose) return false;
     if (rect1.x + rect1.w >= rect2.x && rect1.x <= rect2.x + rect2.w) {
@@ -118,6 +126,8 @@ bool Collision(SDL_Rect &rect1, SDL_Rect &rect2) {
     return false;
 }
 
+
+// check if player bullet is collison with border or boxes
 void CheckBorderCollision(Event event, Player::Bullet &bullet, Stage &stage, vector<SDL_Rect> boxes) {
     if(event.isLose) return;
     if(bullet.bullet.x < stage.background.x+LEFT) {
@@ -141,6 +151,9 @@ void CheckBorderCollision(Event event, Player::Bullet &bullet, Stage &stage, vec
 
 }
 
+
+
+// check if dino bullet is collision with border or boxes
 void CheckBorderCollision(Event event, Dino::Bullet &bullet, Stage &stage, vector<SDL_Rect> boxes) {
     if(event.isLose) return;
     if(bullet.rect.x < stage.background.x+LEFT) {
@@ -164,6 +177,9 @@ void CheckBorderCollision(Event event, Dino::Bullet &bullet, Stage &stage, vecto
 
 }
 
+
+
+// check if hedgehog bullet is collision with border
 void CheckBorderCollision(Event event, Hedgehog::Bullet &bullet, Stage &stage) {
     if(event.isLose) return;
     if(bullet.rect.x < stage.background.x+LEFT) {
@@ -180,6 +196,9 @@ void CheckBorderCollision(Event event, Hedgehog::Bullet &bullet, Stage &stage) {
     }
 }
 
+
+
+// check if hedgehog gun bullet is collision with border
 void CheckBorderCollision(Event event, Hedgehog::Gun::Bullet &bullet, Stage &stage) {
     if(event.isLose) return;
     if(bullet.rect.x < stage.background.x+LEFT) {
@@ -196,7 +215,9 @@ void CheckBorderCollision(Event event, Hedgehog::Gun::Bullet &bullet, Stage &sta
     }
 }
 
-// check player fire to dino
+
+
+// check player bullet hit dino to reduce dino hp
 void CheckCollision(Event event, Player::Bullet &bullet, Dino &dino) {
     if(event.isLose) return;
     if (dino.hp <= 0) {
@@ -212,7 +233,9 @@ void CheckCollision(Event event, Player::Bullet &bullet, Dino &dino) {
     } 
 }
 
-// check player fire to firew
+
+
+// check player bullet hit firew to reduce firew hp
 void CheckCollision(Event event, Player::Bullet &bullet, Firew &firew) {
     if(event.isLose) return;
     if (firew.hp <= 0) {
@@ -224,10 +247,34 @@ void CheckCollision(Event event, Player::Bullet &bullet, Firew &firew) {
             firew.hp -= bullet.damage;
             bullet.isFiring = false;
             firew.hurtTime = SDL_GetTicks64();
+            if(firew.hp == 0) {
+                firew.hp -= 1;
+                // firew.boomTime = SDL_GetTicks64();
+            }
         }
     } 
 }
 
+
+
+// check if firew to collise with player to boom reduce player hp
+void CheckCollision(Event event, Firew &firew, Player &player) {
+    if(event.isLose) return;
+    if(player.playerHP <= 0) {
+        return;
+    }
+    if(firew.hp <= 0) return;
+
+    if(Collision(firew.rect, player.player)) {
+        player.playerHP = max(0, player.playerHP-firew.damage);
+        player.hurtTime = SDL_GetTicks64();
+        firew.hp = 0;
+        firew.boomTime = SDL_GetTicks64();
+    }
+}
+
+
+// check if player bullet hit hedgehog to reduce hedgehog hp
 void CheckCollision(Event event, Player::Bullet &bullet, Hedgehog &hedgehog, vector<Hedgehog::Gun> &guns) {
     if(event.isLose) return;
     if (hedgehog.hp <= 0) {
@@ -246,7 +293,8 @@ void CheckCollision(Event event, Player::Bullet &bullet, Hedgehog &hedgehog, vec
     } 
 }
 
-// check dino fire player
+
+// check dino bullet hit player to reduce player hp
 void CheckCollision(Event event, Dino::Bullet &bullet, Player &player) {
     if(event.isLose) return;
     if(player.playerHP <= 0) {
@@ -262,6 +310,8 @@ void CheckCollision(Event event, Dino::Bullet &bullet, Player &player) {
     }
 }
 
+
+// check hedgehog bullet hit player to reduce player hp
 void CheckCollision(Event event, Hedgehog::Bullet &bullet, Player &player) {
     if(event.isLose) return;
     if(player.playerHP <= 0) {
@@ -277,7 +327,8 @@ void CheckCollision(Event event, Hedgehog::Bullet &bullet, Player &player) {
     }
 }
 
-// check gun fire player
+
+// check gun bullet hit player to reduce player hp
 void CheckCollision(Event event, Hedgehog::Gun::Bullet &bullet, Player &player) {
     if(event.isLose) return;
     if(player.playerHP <= 0) {
@@ -293,8 +344,9 @@ void CheckCollision(Event event, Hedgehog::Gun::Bullet &bullet, Player &player) 
     }
 }
 
-// check player fire hedgehog gun
-void CheckCollision(Event event, Player::Bullet &bullet, Hedgehog::Gun &gun, vector<Hedgehog::Gun> &guns,Hedgehog &hedgehog) {
+
+// check player bullet hit gun of hedgehog to reduce hedgehog hp
+void CheckCollision(Event event, Player::Bullet &bullet, Hedgehog::Gun &gun, vector<Hedgehog::Gun> &guns, Hedgehog &hedgehog) {
     if(event.isLose) return;
     if (hedgehog.hp <= 0) {
         return;
@@ -311,59 +363,90 @@ void CheckCollision(Event event, Player::Bullet &bullet, Hedgehog::Gun &gun, vec
         }
     } 
 }
-// check firew boom
-void CheckCollision(Event event, Firew &firew, Player &player) {
-    if(event.isLose) return;
-    if(player.playerHP <= 0) {
-        return;
-    }
-    if(firew.hp <= 0) return;
 
-    if(Collision(firew.rect, player.player)) {
-        player.playerHP = max(0, player.playerHP-firew.damage);
-        player.hurtTime = SDL_GetTicks64();
-        firew.hp = 0;
-        firew.boomTime = SDL_GetTicks64();
-    }
-}
 
-void SpawnFirew(Hedgehog &hedgehog, vector<Firew> &firews, Stage &stage) {
+// hedgehog spawn firew
+void SpawnFirew(Hedgehog &hedgehog, vector<Firew> &firews, Stage &stage, SDL_Renderer *renderer) {
     for(int i = 0; i < firews.size(); i++) {
         if(firews[i].hp > 0) return;
     }
 
+    if(SDL_GetTicks64() >= hedgehog.spawnTime-1000) {
+        if(hedgehog.isSpawned == false) {
+            for(int i = 0; i < firews.size(); i++) {
+                firews[i].rect.x = (rand() % (RIGHT-LEFT-firews[i].rect.w)) + stage.background.x + LEFT;
+                firews[i].rect.y = (rand() % (DOWN-UP-firews[i].rect.h)) + stage.background.y + UP;
+                firews[i].deltaX = firews[i].rect.x;
+                firews[i].deltaY = firews[i].rect.y;
+            }
+            hedgehog.isSpawned = true;
+        }
+        
+        for(int i = 0; i < firews.size(); i++) {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128); // Semi-transparent red
+            SDL_RenderFillRect(renderer, &firews[i].rect);
+        }
+    }
     if(SDL_GetTicks64() >= hedgehog.spawnTime) {
         for(int i = 0; i < firews.size(); i++) {
             firews[i].hp = 100;
-            // dinos[i].rect.x = rand() % SCREEN_WIDTH + stage.background.x;
-            // dinos[i].rect.y = rand() % SCREEN_HEIGHT + stage.background.y;
-            firews[i].rect.x = (rand() % (RIGHT-LEFT-firews[i].rect.w)) + stage.background.x + LEFT;
-            firews[i].rect.y = (rand() % (DOWN-UP-firews[i].rect.h)) + stage.background.y + UP;
-            firews[i].deltaX = firews[i].rect.x;
-            firews[i].deltaY = firews[i].rect.y;
         }
 
+        hedgehog.isSpawned = false;
         hedgehog.spawnTime = SDL_GetTicks64()+40000;
     }
 }
 
-bool CheckEnemiesDead(vector<Dino> dinos, vector<Firew> firews, Hedgehog hedgehog) {
-    // if(event.isLose) return;
+
+// make dino fire a bullet and moving and border checking dino bullet and hit player check
+void DinosBullet(Event event, SDL_Renderer *renderer, Audio &audio, Stage &stage, vector<Dino> &dinos, Player &player, vector<SDL_Rect> &boxes) {
     for(int i = 0; i < dinos.size(); i++) {
-        if(dinos[i].hp > 0) return false;
+        DinoFire(event, renderer, audio, dinos[i], player);
+        if(dinos[i].bullet.isFiring) {
+            dinos[i].bullet.Move(event);
+            CheckBorderCollision(event, dinos[i].bullet, stage, boxes);
+            if(dinos[i].bullet.isFiring) {
+                SDL_RenderCopy(renderer, dinos[i].bullet.rectImg, NULL, &dinos[i].bullet.rect);
+            }
+
+            CheckCollision(event, dinos[i].bullet, player);
+        }
     }
-
-    for(int i = 0; i < firews.size(); i++) {
-        if(firews[i].hp > 0) return false;
-    }
-
-    if(hedgehog.hp > 0) return false;
-
-    return true;
 }
 
+// player firing bullet
+void PlayerBullet(Event event, SDL_Renderer *renderer, Audio &audio, Stage &stage, vector<Player::Bullet> &bullets, Player &player, vector<SDL_Rect> &boxes, vector<Dino> &dinos, vector<Firew> &firews) {
+    Fire(renderer, event, audio, player, bullets);
+    for(int i = 0; i < bullets.size(); i++) {
+        if(bullets[i].isFiring) {
+            bullets[i].Move(event);
+            CheckBorderCollision(event, bullets[i], stage, boxes);
+            if(bullets[i].isFiring) {
+                SDL_RenderCopy(renderer, player.bullet.bulletImg, NULL, &bullets[i].bullet);
+            }
 
-void DinoMove(Event event, vector<Dino> &dinos, Stage stage, Player player, vector<SDL_Rect> boxes) {
+            // check hit dinos
+            for(int j = 0; j < dinos.size(); j++) {
+                CheckCollision(event, bullets[i], dinos[j]);
+            }
+
+            // check hit firews
+            for(int j = 0; j < firews.size(); j++) {
+                CheckCollision(event, bullets[i], firews[j]);
+            }
+        }
+    }
+}
+
+// check firews close to player to boom
+void FirewsBoom(Event &event, vector<Firew> &firews, Player &player) {
+    for(int i = 0; i < firews.size(); i++) {
+        CheckCollision(event, firews[i], player);
+    }
+}
+
+// dino moving, also check border and boxes collision
+void DinosMove(Event event, vector<Dino> &dinos, Stage stage, Player player, vector<SDL_Rect> boxes) {
     if(event.isLose) return;
     float angle = 0;
     float tempX = 0;
@@ -407,7 +490,9 @@ void DinoMove(Event event, vector<Dino> &dinos, Stage stage, Player player, vect
 
 }
 
-void FirewMove(Event event, vector<Firew> &firews, Stage stage, Player player, vector<SDL_Rect> boxes) {
+
+// firew moving, also check border and boxed collision
+void FirewsMove(Event event, vector<Firew> &firews, Stage stage, Player player, vector<SDL_Rect> boxes) {
     if(event.isLose) return;
     float angle = 0;
     float tempX = 0;
@@ -452,7 +537,25 @@ void FirewMove(Event event, vector<Firew> &firews, Stage stage, Player player, v
 
 
 
+// check is all bot is dead to end stage
+bool CheckEnemiesDead(vector<Dino> dinos, vector<Firew> firews, Hedgehog hedgehog) {
+    // if(event.isLose) return;
+    for(int i = 0; i < dinos.size(); i++) {
+        if(dinos[i].hp > 0) return false;
+    }
 
+    for(int i = 0; i < firews.size(); i++) {
+        if(firews[i].hp > 0) return false;
+    }
+
+    if(hedgehog.hp > 0) return false;
+
+    return true;
+}
+
+
+
+// move everything with player
 void MoveCamera(SDL_Renderer *renderer, Event &event, Audio &audio, Player &player, Stage &stage, vector<Dino> &dinos, vector<Player::Bullet> &bullets, vector<vector<bool>> &canMove, vector<SDL_Rect> &boxes, vector<Firew> &firews, Hedgehog &hedgehog, vector<Hedgehog::Bullet> &hedgehogBullets, vector<Hedgehog::Gun> &guns, int &num) {
     if(event.isLose) {
         audio.EndRun();

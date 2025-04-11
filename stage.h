@@ -51,7 +51,6 @@ public:
 
         lose = {SCREEN_WIDTH/2-138, SCREEN_HEIGHT/2-54-200, 276, 108};
         loseImg = IMG_LoadTexture(renderer, "assets/lose.png");
-        
     }
 
     void SetEnd(SDL_Renderer *renderer) {

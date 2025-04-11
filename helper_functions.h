@@ -564,8 +564,6 @@ void DinosMove(Event event, vector<Dino> &dinos, Stage stage, Player player, vec
             dinos[i].rect.y = tempY;
         }
     }
-
-
 }
 
 

@@ -1,6 +1,6 @@
 class Hedgehog {
 public:
-    int hp = 1000;
+    int hp = 10;
     int hurtTime = 0;
     float deltaX;
     float deltaY;

@@ -414,7 +414,6 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
 
 
 
-
         // check firews close to player to boom
         FirewsBoom(event, firews, player);
 
@@ -433,6 +432,7 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
         
         
 
+        // check if player is dead
         if(player.playerHP <= 0) {
             if(!RenderLossScreen(event, renderer, player, stage)) break;
         }
@@ -447,6 +447,8 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
             RenderCustomDotCursor(renderer, player);
         }
 
+
+        
         RenderPlayer(renderer, player);
         
         SDL_RenderPresent(renderer);
@@ -458,6 +460,9 @@ void RenderStage(Event &event, SDL_Renderer *renderer, Stage &stage, Audio &audi
     canMove.clear();
     boxes.clear();
     dinos.clear();
+    hedgehogBullets.clear();
+    firews.clear();
+    guns.clear();
 }
 
 
